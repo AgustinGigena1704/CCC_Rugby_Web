@@ -1,0 +1,64 @@
+﻿@page "/Auth/Login"
+@layout LoginLayout
+@inject AuthService authService
+@inject AuthStateProvider authStateProvider
+@inject NavigationManager navManager
+
+<MudPaper>
+    <MudContainer>
+        <MudForm Model="@loginDTO" @ref="form" Class="mt-4">
+            <MudTextField @bind-Value="loginDTO.Username" Label="Username" Required="true" />
+            <MudTextField @bind-Value="loginDTO.Password" Label="Password" InputType="InputType.Password" Required="true" />
+            <MudButton Variant="Variant.Filled" OnClick="@HandleLogin" Color="Color.Primary">
+                Login
+                @if (loading)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="ml-2" />
+                }
+            </MudButton>
+        </MudForm>
+        @if (!string.IsNullOrEmpty(info))
+        {
+            <MudAlert Severity="Severity.Error">@info</MudAlert>
+        }   
+    </MudContainer>
+</MudPaper>
+
+@code {
+    private MudForm form;
+    private LoginDTO loginDTO = new LoginDTO();
+    private string info;
+    private bool loading = false;
+
+    private async Task HandleLogin()
+    {
+        loading = true;
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                var user = await authService.LoginAsync(loginDTO);
+                if (user != null)
+                {
+                    await authStateProvider.AuthenticateUser(user);
+                    
+
+
+                    navManager.NavigateTo("/");
+                }
+                else
+                {
+                    // Handle login failure (e.g., show a message)
+                }
+            }
+            catch (Exception ex)
+            {
+                info = ex.Message;
+                loading = false;
+            }
+        }
+        loading = false;
+    }
+
+}

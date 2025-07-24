@@ -1,0 +1,96 @@
+﻿@inherits LayoutComponentBase
+@using System.IdentityModel.Tokens.Jwt
+@using System.Reflection
+@inject NavigationManager navManager
+@inject AuthService authService
+
+<MudThemeProvider IsDarkMode="true" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout Style="height:100vh;" Class="flex-grow-1">
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Inherit"
+                       Edge="Edge.Start"
+                       OnClick="@ToggleDrawer" />
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.AccountCircle"
+                       Color="Color.Inherit"
+                       Target="_blank">
+        </MudIconButton>
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_open"
+               Elevation="1">
+        <MudDrawerHeader>
+            <MudImage Alt="Logo del Club Ciudad de Campana"
+                      Src="images/ciudad_de_campana.png"
+                      Style="max-width:20%" />
+            <MudDivider Vertical="true" FlexItem="true" />
+            <MudText Style="position: absolute; margin-left:25%;" Typo="Typo.h6">CCC App</MudText>
+        </MudDrawerHeader>
+        <MudNavMenu Margin="Margin.Dense" Rounded="true" Class=" pa-2 d-flex flex-column" Style="height:100%;">
+            <MudNavLink Icon="@Icons.Material.Filled.Home" Href="" Style="color:inherit; text-decoration:none;">
+                Inicio
+            </MudNavLink>
+            <MudNavGroup Title="Ventas" Icon="@Icons.Material.Filled.AttachMoney">
+                <div style="display: flex; justify-content: flex-end; width: 100%;">
+                    <MudNavLink Style="width: 90%; text-align: right;"
+                                Icon="@Icons.Material.Filled.Fastfood"
+                                Href="empanadas">
+                        Empanadas
+                    </MudNavLink>
+                </div>
+                <div style="display: flex; justify-content: flex-end; width: 100%;">
+                    <MudNavLink Style="width: 90%; text-align: right;"
+                                Icon="@Icons.Material.Filled.Fastfood"
+                                Href="alfajores">
+                        Alfajores
+                    </MudNavLink>
+                </div>
+            </MudNavGroup>
+
+            <MudDivider Class="flex-grow-1" Style="background-color:transparent;" />
+            <MudDivider Style="max-height:1px" />
+            <MudButton Variant="Variant.Text"
+                       Style="min-height: 40px"
+                       Color="Color.Inherit"
+                       StartIcon="@Icons.Material.Filled.Logout"
+                       FullWidth="true"
+                       Onclick="@LogOut">
+                Cerrar Sesion
+            </MudButton>
+            <MudDivider Style="max-height:1px" />
+            <MudButton Variant="Variant.Text"
+                       Style="min-height: 40px"
+                       Color="Color.Inherit"
+                       Disabled="true"
+                       FullWidth="true">
+                Version: @appVersion
+            </MudButton>
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent Class="d-flex flex-column" Style="height:100%; flex:1 1 auto; min-height:0;">
+        <MudContainer Class="mt-6" Style="height:100%; display:flex; flex-direction:column; justify-content:center;">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+@code {
+    private bool _open = false;
+
+    private string appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.1";
+
+    private void ToggleDrawer()
+    {
+        _open = !_open;
+    }
+
+    private async void LogOut()
+    {
+        
+        await authService.LogOutAsync();
+        navManager.NavigateTo("/Auth/Login");
+    }
+}

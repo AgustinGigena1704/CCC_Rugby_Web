@@ -1,0 +1,32 @@
+steps:
+  # Paso 1: Restaurar dependencias
+  - name: 'mcr.microsoft.com/dotnet/sdk:8.0'
+    entrypoint: 'dotnet'
+    args: ['restore']
+
+  # Paso 2: Build de la aplicación
+  - name: 'mcr.microsoft.com/dotnet/sdk:8.0'
+    entrypoint: 'dotnet'
+    args: ['build', '-c', 'Release']
+
+  # Paso 3: Publicar aplicación
+  - name: 'mcr.microsoft.com/dotnet/sdk:8.0'
+    entrypoint: 'dotnet'
+    args: ['publish', '-c', 'Release', '-o', './publish']
+
+  # Paso 4: Copiar archivos necesarios para App Engine
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cp app.yaml ./publish/
+        cp ca.pem ./publish/
+        cp appsettings.Production.json ./publish/
+        ls -la ./publish/
+
+  # Paso 5: Deploy a App Engine
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['app', 'deploy', './publish/app.yaml', '--quiet']
+
+timeout: '1200s'
