@@ -1,32 +1,37 @@
 steps:
-  # Paso 1: Restaurar dependencias
-  - name: 'mcr.microsoft.com/dotnet/sdk:8.0'
-    entrypoint: 'dotnet'
-    args: ['restore']
+# Restaurar paquetes NuGet
+- name: 'mcr.microsoft.com/dotnet/sdk:8.0'
+  args: ['dotnet', 'restore']
 
-  # Paso 2: Build de la aplicación
-  - name: 'mcr.microsoft.com/dotnet/sdk:8.0'
-    entrypoint: 'dotnet'
-    args: ['build', '-c', 'Release']
+# Compilar el proyecto
+- name: 'mcr.microsoft.com/dotnet/sdk:8.0'
+  args: ['dotnet', 'build', '--configuration', 'Release']
 
-  # Paso 3: Publicar aplicación
-  - name: 'mcr.microsoft.com/dotnet/sdk:8.0'
-    entrypoint: 'dotnet'
-    args: ['publish', '-c', 'Release', '-o', './publish']
+# Publicar el proyecto
+- name: 'mcr.microsoft.com/dotnet/sdk:8.0'
+  args: ['dotnet', 'publish', '--configuration', 'Release', '--output', '/workspace/publish']
 
-  # Paso 4: Copiar archivos necesarios para App Engine
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        cp app.yaml ./publish/
-        cp ca.pem ./publish/
-        cp appsettings.Production.json ./publish/
-        ls -la ./publish/
+# Construir la imagen Docker
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/ccc-rugby-web:$COMMIT_SHA', '.']
 
-  # Paso 5: Deploy a App Engine
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['app', 'deploy', './publish/app.yaml', '--quiet']
+# Publicar la imagen en Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/$PROJECT_ID/ccc-rugby-web:$COMMIT_SHA']
 
-timeout: '1200s'
+# Desplegar en Cloud Run
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+  - 'run'
+  - 'deploy'
+  - 'ccc-rugby-web'
+  - '--image'
+  - 'gcr.io/$PROJECT_ID/ccc-rugby-web:$COMMIT_SHA'
+  - '--region'
+  - 'us-central1'
+  - '--platform'
+  - 'managed'
+  - '--allow-unauthenticated'
+
+images:
+- 'gcr.io/$PROJECT_ID/ccc-rugby-web:$COMMIT_SHA'
