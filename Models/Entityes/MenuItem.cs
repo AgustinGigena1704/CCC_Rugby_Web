@@ -25,7 +25,15 @@ namespace CCC_Rugby_Web.Models.Entityes
         [Column("icono")]
         [Required]
         [DefaultValue(Icons.Material.Filled.List)]
-        public required string? Icono { get; set; }
+        public required string? _icono { get; set; }
+
+        public string Icono
+        {
+            get => (string.IsNullOrEmpty(_icono) || string.IsNullOrWhiteSpace(_icono)) ? Icons.Material.Filled.List : _icono;  
+            
+
+            set => _icono = value;
+        }
 
         public required MenuGroup MenuGrupo { get; set; }
     }

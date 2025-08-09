@@ -19,8 +19,16 @@ namespace CCC_Rugby_Web.Models.Entityes
         public int RolId { get; set; }
         [Column("icono")]
         [Required]
-        [DefaultValue(Icons.Material.Filled.Group)]
-        public required string? Icono { get; set; }
+        [DefaultValue(Icons.Material.Filled.List)]
+        public required string? _icono { get; set; }
+
+        public string Icono
+        {
+            get => (string.IsNullOrEmpty(_icono) || string.IsNullOrWhiteSpace(_icono)) ? Icons.Material.Filled.List : _icono;
+
+
+            set => _icono = value;
+        }
 
         public required Role Rol { get; set; }
     }
