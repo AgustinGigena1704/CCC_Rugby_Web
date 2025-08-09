@@ -1,64 +1,81 @@
 ﻿@page "/Auth/Login"
+@using CCC_Rugby_Web.Models.Entityes
 @layout LoginLayout
+@inject CookieService cookieService
 @inject AuthService authService
 @inject AuthStateProvider authStateProvider
 @inject NavigationManager navManager
+@inject HttpClient httpClient
 
-<MudPaper>
-    <MudContainer>
+<MudPaper Style="" MaxWidth="400px" MaxHeight="600px">
+    <MudContainer Style="height:600px; width:400px; display:flex; flex-direction:column;">
+        <br/>
+        <MudText Align="Align.Center" Typo="Typo.h3">Iniciar Sesion</MudText>
+        <div class="d-flex justify-center">
+            <MudImage Style="max-width:80%;" Class="my-4" Src="images\ciudad_de_campana.png"></MudImage>
+        </div>
         <MudForm Model="@loginDTO" @ref="form" Class="mt-4">
             <MudTextField @bind-Value="loginDTO.Username" Label="Username" Required="true" />
+            <br />
             <MudTextField @bind-Value="loginDTO.Password" Label="Password" InputType="InputType.Password" Required="true" />
-            <MudButton Variant="Variant.Filled" OnClick="@HandleLogin" Color="Color.Primary">
+            <br />
+            <MudButton  Variant="Variant.Filled" OnClick="@HandleLogin" Color="Color.Primary">
                 Login
-                @if (loading)
-                {
-                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="ml-2" />
-                }
             </MudButton>
+            <br />
         </MudForm>
+        @if (loading)
+        {
+            <MudProgressLinear Color="Color.Primary"
+                               Indeterminate="true"
+                               Class="my-7 text-center" />
+        }
         @if (!string.IsNullOrEmpty(info))
         {
             <MudAlert Severity="Severity.Error">@info</MudAlert>
-        }   
+        }
     </MudContainer>
 </MudPaper>
 
 @code {
     private MudForm form;
     private LoginDTO loginDTO = new LoginDTO();
-    private string info;
+    private string? info;
     private bool loading = false;
+    [Parameter][SupplyParameterFromQuery] public string? ReturnUrl { get; set; }
+
 
     private async Task HandleLogin()
     {
-        loading = true;
-        await form.Validate();
-        if (form.IsValid)
+        if (!loading)
         {
-            try
+            loading = true;
+            StateHasChanged();
+            await Task.Yield();
+            await form.Validate();
+            if (form.IsValid)
             {
-                var user = await authService.LoginAsync(loginDTO);
-                if (user != null)
+                try
                 {
-                    await authStateProvider.AuthenticateUser(user);
-                    
-
-
-                    navManager.NavigateTo("/");
+                    var user = await authService.LoginAsync(loginDTO);
+                    if (user != null)
+                    {
+                        await authStateProvider.AuthenticateUser(user);
+                        var returnUrl = string.IsNullOrEmpty(ReturnUrl) ? "/" : ReturnUrl;
+                        navManager.NavigateTo(returnUrl);
+                    }
+                    else
+                    {
+                        // Handle login failure (e.g., show a message)
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    // Handle login failure (e.g., show a message)
+                    info = ex.Message;
+                    loading = false;
                 }
             }
-            catch (Exception ex)
-            {
-                info = ex.Message;
-                loading = false;
-            }
+            loading = false;
         }
-        loading = false;
     }
-
 }

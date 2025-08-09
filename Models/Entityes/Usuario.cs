@@ -6,13 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace CCC_Rugby_Web.Models.Entityes
 {
     [Table("usuario")]
-    public class Usuario
+    public class Usuario : BasePropeties
     {
-        [Key]
-        [Required]
-        [Column("id")]
-        public int Id { get; set; }
-
         [Required]
         [Column("username")]
         public required string Username { get; set; }
@@ -32,6 +27,10 @@ namespace CCC_Rugby_Web.Models.Entityes
         public int? PersonaId { get; set; }
         
         public Persona? Persona { get; set; }
+        [Column("avatar_archivo_id")]
+        [DefaultValue(null)]
+        public int? AvatarArchivoId { get; set; }
+        public Archivo? AvatarArchivo { get; set; }
 
         [Required]
         [Column("last_login")]
@@ -46,10 +45,5 @@ namespace CCC_Rugby_Web.Models.Entityes
         [Column("bloqueado")]
         [DefaultValue(false)]
         public bool Bloqueado { get; set; } = false;
-
-        [Required]
-        [DefaultValue(false)]
-        [Column("borrado_logico")]
-        public bool BorradoLogico { get; set; } = false;
     }
 }

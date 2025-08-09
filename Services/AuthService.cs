@@ -28,6 +28,8 @@ namespace CCC_Rugby_Web.Services
             {
                 throw new Exception("Credenciales enviadas invalidas");
             }
+            user.LastLogin = DateTime.Now;
+            usuarioRepository.Update(user);
             return user;
         }
 

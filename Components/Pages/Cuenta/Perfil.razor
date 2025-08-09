@@ -1,0 +1,111 @@
+﻿@page "/Cuenta/Perfil"
+@using System.Security.Claims
+@using CCC_Rugby_Web.Models.Entityes
+@attribute [Authorize]
+@layout MainLayout
+@inject NavigationManager NavManager
+@inject AuthService authService
+@inject AuthStateProvider auth
+@inject HttpClient httpClient
+<MudText Align="Align.Center" Style="align-self=auto;">Perfil</MudText>
+<MudPaper Height="95%">
+    <MudContainer>
+        <MudImage Src="@avatarUrl"
+                  Height="100"/>
+        <MudFileUpload T="IBrowserFile"
+                       Accept=".jpg, .png, .webp, .jpeg" 
+                       FilesChanged="@UploadAvatar">
+                       <ActivatorContent>
+                           <MudButton>Subir Avatar</MudButton>
+                       </ActivatorContent>
+        </MudFileUpload>
+        <MudText>@error</MudText>
+    </MudContainer>
+</MudPaper>
+
+
+
+@code {
+    private string? avatarUrl;
+    private string error = "";
+    private bool isLoadingAvatar = false;
+    private int currentUserId;
+
+    private async Task UploadAvatar(IBrowserFile file)
+    {
+        try
+        {
+            using var content = new MultipartFormDataContent();
+            using var fileContent = new StreamContent(file.OpenReadStream(maxAllowedSize: 5242880));
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            content.Add(fileContent, "file", file.Name);
+            var response = await httpClient.PostAsync("/api/Usuario/UpdateAvatar/1", content);
+            if (response.IsSuccessStatusCode)
+            {
+                NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
+                await LoadUserAvatar();
+            }
+        }
+        catch(Exception e)
+        {
+            error = e.Message;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserAvatar();
+    }
+
+    private async Task LoadUserAvatar()
+    {
+        try
+        {
+            isLoadingAvatar = true;
+            StateHasChanged();
+
+
+            var authState = await auth.GetAuthenticationStateAsync();
+            var userIdClaim = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+            {
+                currentUserId = userId;
+                var response = await httpClient.GetAsync($"api/Usuario/GetAvatar/{userId}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var avatarData = await response.Content.ReadFromJsonAsync<Archivo>();
+                    if (avatarData != null && avatarData.bytes != null)
+                    {
+                        var mimeType = GetMimeType(avatarData.Extension);
+                        avatarUrl = $"data:{mimeType};base64,{avatarData.Base64}";
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log del error si es necesario
+            Console.WriteLine($"Error cargando avatar: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingAvatar = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetMimeType(string extension)
+    {
+        return extension.ToLower() switch
+        {
+            "jpg" or "jpeg" => "image/jpeg",
+            "png" => "image/png",
+            "gif" => "image/gif",
+            "webp" => "image/webp",
+            "svg" => "image/svg+xml",
+            _ => "image/jpeg"
+        };
+    }
+}

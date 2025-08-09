@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using static CCC_Rugby_Web.Services.Constants;
 
 namespace CCC_Rugby_Web.Security
 {
@@ -12,8 +13,9 @@ namespace CCC_Rugby_Web.Security
     {
         private readonly string jwtKey;
         private readonly CookieService cookieService;
-        private readonly string tokenCookieName = "authToken";
-            
+        private readonly string tokenCookieName = TokenCookieName;
+
+
         public AuthStateComponent(CookieService cookieService, IConfiguration configuration)
         {
             this.cookieService = cookieService;
@@ -32,15 +34,18 @@ namespace CCC_Rugby_Web.Security
             var SecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
 
+
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Thumbprint, user.AvatarArchivo?.Base64.ToString() ?? ""),
             };
             if (roles != null)
             {
-                var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role.Id.ToString())).ToList();
+                var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role.Name)).ToList();
                 claims.AddRange(roleClaims);
             }
             var token = new JwtSecurityToken(

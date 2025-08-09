@@ -1,86 +1,179 @@
 ﻿@inherits LayoutComponentBase
 @using System.IdentityModel.Tokens.Jwt
 @using System.Reflection
+@using CCC_Rugby_Web.Models.Entityes
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using System.Net.Http
+@using System.Text.Json
 @inject NavigationManager navManager
 @inject AuthService authService
+@inject AuthStateProvider auth
+@inject HttpClient httpClient
 
 <MudThemeProvider IsDarkMode="true" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
+<AuthorizeView>
+    <MudLayout Style="height:100vh;" Class="flex-grow-1">
+        <MudAppBar Elevation="1">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                           Color="Color.Inherit"
+                           Edge="Edge.Start"
+                           OnClick="@ToggleDrawer" />
+            <MudSpacer />
+                <MudText Class="mr-4">@context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value.ToString()</MudText>
+            <MudMenu 
+                ActivationEvent="@MouseEvent.LeftClick" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                <ActivatorContent>
+                    <MudAvatar>
+                        @if(isLoadingAvatar)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true"/>
+                        }
+                        else if(!string.IsNullOrEmpty(avatarUrl))
+                        {
+                            <MudImage ObjectFit="ObjectFit.Cover" Src="@avatarUrl"/>
+                        }
+                        else
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Person" />
+                        }
+                    </MudAvatar>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudNavLink Href="Cuenta/Perfil" Icon="@Icons.Material.Filled.AccountCircle">Perfil</MudNavLink>
+                </ChildContent>
+            </MudMenu>
+        
+        </MudAppBar>
+        <MudDrawer @bind-Open="@_open"
+                   Elevation="1">
+            <MudDrawerHeader>
+                <MudImage Alt="Logo del Club Ciudad de Campana"
+                          Src="images/ciudad_de_campana.png"
+                          Style="max-width:20%" />
+                <MudDivider Vertical="true" FlexItem="true" />
+                <MudText Style="position: absolute; margin-left:25%;" Typo="Typo.h6">CCC App</MudText>
+            </MudDrawerHeader>
+            <MudNavMenu Margin="Margin.Dense" Rounded="true" Class=" pa-2 d-flex flex-column" Style="height:100%;">
+                <MudNavLink Icon="@Icons.Material.Filled.Home" Href="" Style="color:inherit; text-decoration:none;">
+                    Inicio
+                </MudNavLink>
+                    <MudNavGroup Title="Ventas" Icon="@Icons.Material.Filled.AttachMoney">
+                        <div style="display: flex; justify-content: flex-end; width: 100%;">
+                            <MudNavLink Style="width: 90%; text-align: right;"
+                                        Icon="@Icons.Material.Filled.Fastfood"
+                                        Href="Ventas/Empanadas">
+                                Empanadas
+                            </MudNavLink>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; width: 100%;">
+                            <MudNavLink Style="width: 90%; text-align: right;"
+                                        Icon="@Icons.Material.Filled.Fastfood"
+                                        Href="Ventas/Alfajores">
+                                Alfajores
+                            </MudNavLink>
+                        </div>
+                    </MudNavGroup>
+            
 
-<MudLayout Style="height:100vh;" Class="flex-grow-1">
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Inherit"
-                       Edge="Edge.Start"
-                       OnClick="@ToggleDrawer" />
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.AccountCircle"
-                       Color="Color.Inherit"
-                       Target="_blank">
-        </MudIconButton>
-    </MudAppBar>
-    <MudDrawer @bind-Open="@_open"
-               Elevation="1">
-        <MudDrawerHeader>
-            <MudImage Alt="Logo del Club Ciudad de Campana"
-                      Src="images/ciudad_de_campana.png"
-                      Style="max-width:20%" />
-            <MudDivider Vertical="true" FlexItem="true" />
-            <MudText Style="position: absolute; margin-left:25%;" Typo="Typo.h6">CCC App</MudText>
-        </MudDrawerHeader>
-        <MudNavMenu Margin="Margin.Dense" Rounded="true" Class=" pa-2 d-flex flex-column" Style="height:100%;">
-            <MudNavLink Icon="@Icons.Material.Filled.Home" Href="" Style="color:inherit; text-decoration:none;">
-                Inicio
-            </MudNavLink>
-            <MudNavGroup Title="Ventas" Icon="@Icons.Material.Filled.AttachMoney">
-                <div style="display: flex; justify-content: flex-end; width: 100%;">
-                    <MudNavLink Style="width: 90%; text-align: right;"
-                                Icon="@Icons.Material.Filled.Fastfood"
-                                Href="empanadas">
-                        Empanadas
-                    </MudNavLink>
-                </div>
-                <div style="display: flex; justify-content: flex-end; width: 100%;">
-                    <MudNavLink Style="width: 90%; text-align: right;"
-                                Icon="@Icons.Material.Filled.Fastfood"
-                                Href="alfajores">
-                        Alfajores
-                    </MudNavLink>
-                </div>
-            </MudNavGroup>
+                <MudDivider Class="flex-grow-1" Style="background-color:transparent;" />
+                <MudDivider Style="max-height:1px" />
+                <MudButton Variant="Variant.Text"
+                           Style="min-height: 40px"
+                           Color="Color.Inherit"
+                           StartIcon="@Icons.Material.Filled.Logout"
+                           FullWidth="true"
+                           Onclick="@LogOut">
+                    Cerrar Sesion
+                </MudButton>
+                <MudDivider Style="max-height:1px" />
+                <MudButton Variant="Variant.Text"
+                           Style="min-height: 40px"
+                           Color="Color.Inherit"
+                           Disabled="true"
+                           FullWidth="true">
+                    Version: @appVersion
+                </MudButton>
+            </MudNavMenu>
+        </MudDrawer>
+        <MudMainContent Class="d-flex flex-column" Style="height:100%; flex:1 1 auto; min-height:0;">
+            <MudContainer Class="mt-6" Style="height:100%; display:flex; flex-direction:column; justify-content:center;">
+                @Body
+            </MudContainer>
+        </MudMainContent>
+    </MudLayout>
+</AuthorizeView>
 
-            <MudDivider Class="flex-grow-1" Style="background-color:transparent;" />
-            <MudDivider Style="max-height:1px" />
-            <MudButton Variant="Variant.Text"
-                       Style="min-height: 40px"
-                       Color="Color.Inherit"
-                       StartIcon="@Icons.Material.Filled.Logout"
-                       FullWidth="true"
-                       Onclick="@LogOut">
-                Cerrar Sesion
-            </MudButton>
-            <MudDivider Style="max-height:1px" />
-            <MudButton Variant="Variant.Text"
-                       Style="min-height: 40px"
-                       Color="Color.Inherit"
-                       Disabled="true"
-                       FullWidth="true">
-                Version: @appVersion
-            </MudButton>
-        </MudNavMenu>
-    </MudDrawer>
-    <MudMainContent Class="d-flex flex-column" Style="height:100%; flex:1 1 auto; min-height:0;">
-        <MudContainer Class="mt-6" Style="height:100%; display:flex; flex-direction:column; justify-content:center;">
-            @Body
-        </MudContainer>
-    </MudMainContent>
-</MudLayout>
 @code {
     private bool _open = false;
+    private string avatarUrl = "";
+    private bool isLoadingAvatar = true;
+    private int? currentUserId;
 
     private string appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.1";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserAvatar();
+    }
+
+    private async Task LoadUserAvatar()
+    {
+        try
+        {
+            isLoadingAvatar = true;
+            StateHasChanged();
+
+            // Obtener el userId del usuario autenticado
+            var authState = await auth.GetAuthenticationStateAsync();
+            var userIdClaim = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+            {
+                currentUserId = userId;
+                
+                // Llamar al endpoint para obtener el avatar
+                var response = await httpClient.GetAsync($"api/Usuario/GetAvatar/{userId}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var avatarData = await response.Content.ReadFromJsonAsync<Archivo>();
+                    if (avatarData != null && avatarData.bytes != null)
+                    {
+                        // Crear la URL de la imagen en formato data URI
+                        var mimeType = GetMimeType(avatarData.Extension);
+                        avatarUrl = $"data:{mimeType};base64,{avatarData.Base64}";
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log del error si es necesario
+            Console.WriteLine($"Error cargando avatar: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingAvatar = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetMimeType(string extension)
+    {
+        return extension.ToLower() switch
+        {
+            "jpg" or "jpeg" => "image/jpeg",
+            "png" => "image/png",
+            "gif" => "image/gif",
+            "webp" => "image/webp",
+            "svg" => "image/svg+xml",
+            _ => "image/jpeg" // Default
+        };
+    }
 
     private void ToggleDrawer()
     {
@@ -89,8 +182,13 @@
 
     private async void LogOut()
     {
-        
         await authService.LogOutAsync();
         navManager.NavigateTo("/Auth/Login");
+    }
+
+    // Método público para refrescar el avatar cuando se actualice
+    public async Task RefreshAvatar()
+    {
+        await LoadUserAvatar();
     }
 }

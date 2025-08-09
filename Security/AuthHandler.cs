@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using static CCC_Rugby_Web.Services.Constants;
 
 namespace CCC_Rugby_Web.Security
 {
@@ -16,7 +17,7 @@ namespace CCC_Rugby_Web.Security
         }
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            string? token = Request.Cookies["authToken"];
+            string? token = Context.Request.Cookies[TokenCookieName];
             if (string.IsNullOrEmpty(token))
                 return AuthenticateResult.Fail("Authentication Failed");
 
@@ -33,7 +34,8 @@ namespace CCC_Rugby_Web.Security
 
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)
         {
-            Context.Response.Redirect("/Auth/Login");
+            var returnUrl = Context.Request.Path + Context.Request.QueryString;
+            Context.Response.Redirect($"/Auth/Login?returnUrl={UrlEncoder.Default.Encode(returnUrl)}");
             return Task.CompletedTask;
         }
 

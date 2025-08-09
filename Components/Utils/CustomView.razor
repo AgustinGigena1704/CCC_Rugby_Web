@@ -1,0 +1,45 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<AuthorizeView Roles="@CombinedRoles">
+    <Authorized>
+        @ChildContent
+    </Authorized>
+    <NotAuthorized>
+        @if (NotAuthorizedContent != null)
+        {
+            @NotAuthorizedContent
+        }
+        else
+        {
+            <div class="unauthorized">
+                <h3>No autorizado</h3>
+                <p>Lo sentimos, no tienes permiso para ver esta página.</p>
+                <p>Por favor, contacta al administrador si crees que esto es un error.</p>
+            </div>
+        }
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public string Roles { get; set; } = "";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? NotAuthorizedContent { get; set; }
+    
+    private string CombinedRoles
+    {
+        get
+        {
+            var rolesList = new List<string> { "Admin" };
+            
+            if (!string.IsNullOrEmpty(Roles))
+            {
+                var additionalRoles = Roles.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                          .Select(r => r.Trim())
+                                          .Where(r => !string.IsNullOrEmpty(r));
+                rolesList.AddRange(additionalRoles);
+            }
+            
+            return string.Join(",", rolesList);
+        }
+    }
+}

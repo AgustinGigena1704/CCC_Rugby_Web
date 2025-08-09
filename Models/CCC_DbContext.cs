@@ -12,6 +12,7 @@ namespace CCC_Rugby_Web.Models
         public DbSet<UsuarioRol> UsuarioRoles { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Persona> Personas { get; set; }
+        public DbSet<Archivo> Archivos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,8 +39,21 @@ namespace CCC_Rugby_Web.Models
                 .WithMany()
                 .HasForeignKey(u => u.PersonaId);
             modelBuilder.Entity<Usuario>()
+                .HasOne<Archivo>(u => u.AvatarArchivo)
+                .WithMany()
+                .HasForeignKey(u => u.AvatarArchivoId);
+            modelBuilder.Entity<Usuario>()
                 .HasIndex(u => u.Username)
                 .IsUnique();
+            modelBuilder.Entity<Usuario>()
+                .HasOne<Usuario>(u => u.DeletedByUsuario)
+                .WithMany()
+                .HasForeignKey(u => u.DeletedBy);
+            modelBuilder.Entity<Usuario>()
+                .HasOne<Usuario>(u => u.UpdatedByUsuario)
+                .WithMany()
+                .HasForeignKey(u => u.UpdatedBy);
+            
 
             modelBuilder.Entity<Persona>()
                 .HasIndex(p => new { p.TipoDocumento, p.Documento })
@@ -54,6 +68,20 @@ namespace CCC_Rugby_Web.Models
                 .WithMany()
                 .HasForeignKey(ur => ur.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Permiso>()
+                .HasIndex(p => p.Codigo)
+                .IsUnique();
+
+            modelBuilder.Entity<RolPermiso>()
+                .HasOne<Role>(rp => rp.Rol)
+                .WithMany()
+                .HasForeignKey(rp => rp.RolId);
+            modelBuilder.Entity<RolPermiso>()
+                .HasOne<Permiso>(rp => rp.Permiso)
+                .WithMany()
+                .HasForeignKey(rp => rp.PermisoId);
+
 
             base.OnModelCreating(modelBuilder);
         }

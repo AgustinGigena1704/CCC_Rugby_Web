@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CCC_Rugby_Web.Models.Entityes
 {
+    [Table("rol")]
     public class Role : GenericEntity
     {
         [Required]
