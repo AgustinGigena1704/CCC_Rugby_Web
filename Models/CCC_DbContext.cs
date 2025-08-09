@@ -66,8 +66,7 @@ namespace CCC_Rugby_Web.Models
             modelBuilder.Entity<UsuarioRol>()
                 .HasOne<Role>(ur => ur.Role)
                 .WithMany()
-                .HasForeignKey(ur => ur.RoleId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(ur => ur.RoleId);
 
             modelBuilder.Entity<Permiso>()
                 .HasIndex(p => p.Codigo)
@@ -81,6 +80,16 @@ namespace CCC_Rugby_Web.Models
                 .HasOne<Permiso>(rp => rp.Permiso)
                 .WithMany()
                 .HasForeignKey(rp => rp.PermisoId);
+
+            modelBuilder.Entity<MenuGroup>()
+                .HasOne<Role>(mg => mg.Rol)
+                .WithMany()
+                .HasForeignKey(mg => mg.RolId);
+
+            modelBuilder.Entity<MenuItem>()
+                .HasOne<MenuGroup>(mi => mi.MenuGrupo)
+                .WithMany()
+                .HasForeignKey(mi => mi.MenuGrupoId);
 
 
             base.OnModelCreating(modelBuilder);
