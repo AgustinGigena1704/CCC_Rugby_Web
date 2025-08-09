@@ -15,6 +15,9 @@ namespace CCC_Rugby_Web.Models.Entityes
         [StringLength(250)]
         [Column("descripcion")]
         public string? Descripcion { get; set; } = null;
+        [Column("codigo")]
+        [Required]
+        public required string Codigo { get; set; }
 
     }
 }

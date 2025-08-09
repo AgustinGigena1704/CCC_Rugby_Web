@@ -1,4 +1,5 @@
-﻿using CCC_Rugby_Web.Models.Entityes;
+﻿using CCC_Rugby_Web.DTOs;
+using CCC_Rugby_Web.Models.Entityes;
 using CCC_Rugby_Web.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
@@ -66,6 +67,72 @@ namespace CCC_Rugby_Web.Models.Repositories
                 .Select(ur => ur.Role)
                 .ToListAsync();
             return roles;
+        }
+
+        public async Task<List<MenuGroupDTO>> GetMenuDto(int userId)
+        {
+            var r = new List<MenuGroupDTO>();
+            var roles = await GetRoles(userId);
+            if (roles == null || !roles.Any())
+                return r;
+
+            if(roles.Select(r => r.Codigo).Contains("admin"))
+            {
+                var AmenuGroups = await context.MenuGroups
+                    .Where(mg => !mg.BorradoLogico)
+                    .ToListAsync();
+                var AmenuItems = await context.MenuItems
+                    .Where(mi => !mi.BorradoLogico && AmenuGroups.Select(mg => mg.Id).Contains(mi.MenuGrupoId))
+                    .ToListAsync();
+                foreach (var grupo in AmenuGroups)
+                    {
+                    List<MenuItemDTO> itemsDto = new List<MenuItemDTO>();
+                    foreach (var item in AmenuItems)
+                    {
+                        itemsDto.Add(new MenuItemDTO
+                        {
+                            Nombre = item.Nombre,
+                            Icono = item.Icono,
+                            Url = item.Url
+                        });
+                    }
+                    r.Add(new MenuGroupDTO
+                    {
+                        Nombre = grupo.Nombre,
+                        Icono = grupo.Icono,
+                        MenuItems = itemsDto
+                    });
+                }
+                return r;
+            }
+
+            var menuGroups = await context.MenuGroups
+                .Where(mg => !mg.BorradoLogico && roles.Select(r => r.Id).Contains(mg.RolId))
+                .ToListAsync();
+            var menuItems = await context.MenuItems
+                .Where(mi => !mi.BorradoLogico && menuGroups.Select(mg => mg.Id).Contains(mi.MenuGrupoId))
+                .ToListAsync();
+
+            foreach (var grupo in menuGroups)
+            {
+                List<MenuItemDTO> itemsDto = new List<MenuItemDTO>();
+                foreach (var item in menuItems)
+                {
+                    itemsDto.Add(new MenuItemDTO
+                    {
+                        Nombre = item.Nombre,
+                        Icono = item.Icono,
+                        Url = item.Url
+                    });
+                }
+                r.Add(new MenuGroupDTO
+                {
+                    Nombre = grupo.Nombre,
+                    Icono = grupo.Icono,
+                    MenuItems = itemsDto
+                });
+            }
+                return r;
         }
 
         private bool IsValidBCryptHash(string hash)

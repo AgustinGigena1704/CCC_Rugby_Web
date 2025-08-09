@@ -1,13 +1,18 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 
 <AuthorizeView Roles="@CombinedRoles">
     <Authorized>
-        @ChildContent
+        <CascadingAuthenticationState>
+            @ChildContent
+        </CascadingAuthenticationState>
     </Authorized>
     <NotAuthorized>
         @if (NotAuthorizedContent != null)
         {
-            @NotAuthorizedContent
+            <CascadingAuthenticationState>
+                @NotAuthorizedContent
+            </CascadingAuthenticationState>
         }
         else
         {
@@ -24,13 +29,13 @@
     [Parameter] public string Roles { get; set; } = "";
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public RenderFragment? NotAuthorizedContent { get; set; }
-    
+
     private string CombinedRoles
     {
         get
         {
             var rolesList = new List<string> { "Admin" };
-            
+
             if (!string.IsNullOrEmpty(Roles))
             {
                 var additionalRoles = Roles.Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -38,7 +43,7 @@
                                           .Where(r => !string.IsNullOrEmpty(r));
                 rolesList.AddRange(additionalRoles);
             }
-            
+
             return string.Join(",", rolesList);
         }
     }

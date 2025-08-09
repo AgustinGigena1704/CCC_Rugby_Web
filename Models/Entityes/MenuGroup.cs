@@ -17,10 +17,10 @@ namespace CCC_Rugby_Web.Models.Entityes
         [Column("rol_id")]
         [Required]
         public int RolId { get; set; }
-        [Column("iconPath")]
+        [Column("icono")]
         [Required]
         [DefaultValue(Icons.Material.Filled.Group)]
-        public required string Icon { get; set; }
+        public required string? Icono { get; set; }
 
         public required Role Rol { get; set; }
     }

@@ -13,5 +13,6 @@ namespace CCC_Rugby_Web.Models.Entityes
         [Column("created_by")]
         public int CreatedBy { get; set; }
         public required Usuario CreatedByUsuario { get; set; }
+        
     }
 }

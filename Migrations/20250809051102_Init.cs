@@ -42,6 +42,96 @@ namespace CCC_Rugby_Web.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "menu_grupo",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    nombre = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    descripcion = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    rol_id = table.Column<int>(type: "int", nullable: false),
+                    icono = table.Column<string>(type: "longtext", nullable: false, defaultValue: "<path d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z\"/>")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    updated_by = table.Column<int>(type: "int", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    deleted_by = table.Column<int>(type: "int", nullable: true),
+                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_menu_grupo", x => x.id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "menu_item",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Nombre = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    descripcion = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    codigo = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    url = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    menu_grupo_id = table.Column<int>(type: "int", nullable: false),
+                    icono = table.Column<string>(type: "longtext", nullable: false, defaultValue: "<path d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z\"/>")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    updated_by = table.Column<int>(type: "int", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    deleted_by = table.Column<int>(type: "int", nullable: true),
+                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_menu_item", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_menu_item_menu_grupo_menu_grupo_id",
+                        column: x => x.menu_grupo_id,
+                        principalTable: "menu_grupo",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "permiso",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    nombre = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    descripcion = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    codigo = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    updated_by = table.Column<int>(type: "int", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    deleted_by = table.Column<int>(type: "int", nullable: true),
+                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_permiso", x => x.id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "persona",
                 columns: table => new
                 {
@@ -132,6 +222,8 @@ namespace CCC_Rugby_Web.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     descripcion = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    codigo = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_by = table.Column<int>(type: "int", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -165,6 +257,31 @@ namespace CCC_Rugby_Web.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "rol_permiso",
+                columns: table => new
+                {
+                    rol_id = table.Column<int>(type: "int", nullable: false),
+                    permiso_id = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_rol_permiso", x => x.rol_id);
+                    table.ForeignKey(
+                        name: "FK_rol_permiso_permiso_permiso_id",
+                        column: x => x.permiso_id,
+                        principalTable: "permiso",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_rol_permiso_rol_rol_id",
+                        column: x => x.rol_id,
+                        principalTable: "rol",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "usuario_rol",
                 columns: table => new
                 {
@@ -179,7 +296,7 @@ namespace CCC_Rugby_Web.Migrations
                         column: x => x.RoleId,
                         principalTable: "rol",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_usuario_rol_usuario_UsuarioId",
                         column: x => x.UsuarioId,
@@ -202,6 +319,73 @@ namespace CCC_Rugby_Web.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_archivo_updated_by",
                 table: "archivo",
+                column: "updated_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_grupo_created_by",
+                table: "menu_grupo",
+                column: "created_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_grupo_deleted_by",
+                table: "menu_grupo",
+                column: "deleted_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_grupo_rol_id",
+                table: "menu_grupo",
+                column: "rol_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_grupo_updated_by",
+                table: "menu_grupo",
+                column: "updated_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_item_codigo",
+                table: "menu_item",
+                column: "codigo",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_item_created_by",
+                table: "menu_item",
+                column: "created_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_item_deleted_by",
+                table: "menu_item",
+                column: "deleted_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_item_menu_grupo_id",
+                table: "menu_item",
+                column: "menu_grupo_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_item_updated_by",
+                table: "menu_item",
+                column: "updated_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_permiso_codigo",
+                table: "permiso",
+                column: "codigo",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_permiso_created_by",
+                table: "permiso",
+                column: "created_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_permiso_deleted_by",
+                table: "permiso",
+                column: "deleted_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_permiso_updated_by",
+                table: "permiso",
                 column: "updated_by");
 
             migrationBuilder.CreateIndex(
@@ -239,6 +423,11 @@ namespace CCC_Rugby_Web.Migrations
                 name: "IX_rol_updated_by",
                 table: "rol",
                 column: "updated_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_rol_permiso_permiso_id",
+                table: "rol_permiso",
+                column: "permiso_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_usuario_avatar_archivo_id",
@@ -290,6 +479,86 @@ namespace CCC_Rugby_Web.Migrations
             migrationBuilder.AddForeignKey(
                 name: "FK_archivo_usuario_updated_by",
                 table: "archivo",
+                column: "updated_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_menu_grupo_rol_rol_id",
+                table: "menu_grupo",
+                column: "rol_id",
+                principalTable: "rol",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_menu_grupo_usuario_created_by",
+                table: "menu_grupo",
+                column: "created_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_menu_grupo_usuario_deleted_by",
+                table: "menu_grupo",
+                column: "deleted_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.SetNull);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_menu_grupo_usuario_updated_by",
+                table: "menu_grupo",
+                column: "updated_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_menu_item_usuario_created_by",
+                table: "menu_item",
+                column: "created_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_menu_item_usuario_deleted_by",
+                table: "menu_item",
+                column: "deleted_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.SetNull);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_menu_item_usuario_updated_by",
+                table: "menu_item",
+                column: "updated_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_permiso_usuario_created_by",
+                table: "permiso",
+                column: "created_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_permiso_usuario_deleted_by",
+                table: "permiso",
+                column: "deleted_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.SetNull);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_permiso_usuario_updated_by",
+                table: "permiso",
                 column: "updated_by",
                 principalTable: "usuario",
                 principalColumn: "id",
@@ -348,7 +617,19 @@ namespace CCC_Rugby_Web.Migrations
                 table: "persona");
 
             migrationBuilder.DropTable(
+                name: "menu_item");
+
+            migrationBuilder.DropTable(
+                name: "rol_permiso");
+
+            migrationBuilder.DropTable(
                 name: "usuario_rol");
+
+            migrationBuilder.DropTable(
+                name: "menu_grupo");
+
+            migrationBuilder.DropTable(
+                name: "permiso");
 
             migrationBuilder.DropTable(
                 name: "rol");

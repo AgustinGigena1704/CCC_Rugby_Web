@@ -61,24 +61,30 @@
                 <MudNavLink Icon="@Icons.Material.Filled.Home" Href="" Style="color:inherit; text-decoration:none;">
                     Inicio
                 </MudNavLink>
-                    <MudNavGroup Title="Ventas" Icon="@Icons.Material.Filled.AttachMoney">
-                        <div style="display: flex; justify-content: flex-end; width: 100%;">
-                            <MudNavLink Style="width: 90%; text-align: right;"
-                                        Icon="@Icons.Material.Filled.Fastfood"
-                                        Href="Ventas/Empanadas">
-                                Empanadas
-                            </MudNavLink>
-                        </div>
-                        <div style="display: flex; justify-content: flex-end; width: 100%;">
-                            <MudNavLink Style="width: 90%; text-align: right;"
-                                        Icon="@Icons.Material.Filled.Fastfood"
-                                        Href="Ventas/Alfajores">
-                                Alfajores
-                            </MudNavLink>
-                        </div>
-                    </MudNavGroup>
-            
+                    <MudDivider Style="max-height:1px" />
+                    @if (menuLoaded)
+                    {
+                        foreach (var group in menuGroups)
+                        {
+                            
+                            <MudNavGroup Title="@group.Nombre" Icon="@group.Icono">
+                                @foreach (var item in group.MenuItems)
+                                {
+                                    <MudNavLink Href="@item.Url" Icon="@item.Icono">
+                                        @item.Nombre
+                                    </MudNavLink>
+                                }
+                            </MudNavGroup>
+                        }
+                    }
+                    else
+                    {
 
+                        <MudDivider Class="flex-grow-1" Style="background-color:transparent;" />
+                        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mt-2 mb-2" />
+                        <MudText Align="Align.Center">Cargando menú...</MudText>
+                    }
+                    
                 <MudDivider Class="flex-grow-1" Style="background-color:transparent;" />
                 <MudDivider Style="max-height:1px" />
                 <MudButton Variant="Variant.Text"
@@ -109,15 +115,52 @@
 
 @code {
     private bool _open = false;
+    private bool menuLoaded = false;
     private string avatarUrl = "";
     private bool isLoadingAvatar = true;
     private int? currentUserId;
+    private List<MenuGroupDTO> menuGroups = new List<MenuGroupDTO>();
 
     private string appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.1";
 
     protected override async Task OnInitializedAsync()
     {
         await LoadUserAvatar();
+        await LoadMenu();
+        StateHasChanged();
+    }
+
+    private async Task LoadMenu()
+    {
+        menuLoaded = false;
+        try
+        {
+            if(currentUserId > 0)
+            {
+                var response = await httpClient.GetAsync($"/api/Usuario/GetMainMenu/{currentUserId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    menuGroups = await response.Content.ReadFromJsonAsync<List<MenuGroupDTO>>() ?? new List<MenuGroupDTO>();
+                }
+                else
+                {
+                    // Manejo de error si es necesario
+                    Console.WriteLine("Error al cargar el menú");
+                }
+                await Task.Delay(500); // Simulación de carga
+            }
+        }
+        catch (Exception ex)
+        {
+            // Manejo de errores si es necesario
+            Console.WriteLine($"Error cargando menú: {ex.Message}");
+        }
+        finally
+        {
+            menuLoaded = true;
+            StateHasChanged();
+        }
+
     }
 
     private async Task LoadUserAvatar()

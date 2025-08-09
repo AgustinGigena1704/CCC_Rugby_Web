@@ -1,5 +1,6 @@
 ﻿using CCC_Rugby_Web.Models.Entityes;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor;
 
 namespace CCC_Rugby_Web.Models
 {
@@ -13,6 +14,11 @@ namespace CCC_Rugby_Web.Models
         public DbSet<Role> Roles { get; set; }
         public DbSet<Persona> Personas { get; set; }
         public DbSet<Archivo> Archivos { get; set; }
+        public DbSet<Permiso> Permisos { get; set; }
+        public DbSet<RolPermiso> RolPermisos { get; set; }
+        public DbSet<MenuGroup> MenuGroups { get; set; }
+        public DbSet<MenuItem> MenuItems { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -85,12 +91,20 @@ namespace CCC_Rugby_Web.Models
                 .HasOne<Role>(mg => mg.Rol)
                 .WithMany()
                 .HasForeignKey(mg => mg.RolId);
+            modelBuilder.Entity<MenuGroup>()
+                .Property(mg => mg.Icono)
+                .HasDefaultValue(Icons.Material.Filled.List);
 
             modelBuilder.Entity<MenuItem>()
                 .HasOne<MenuGroup>(mi => mi.MenuGrupo)
                 .WithMany()
                 .HasForeignKey(mi => mi.MenuGrupoId);
-
+            modelBuilder.Entity<MenuItem>()
+                .Property(mi => mi.Icono)
+                .HasDefaultValue(Icons.Material.Filled.List);
+            modelBuilder.Entity<MenuItem>()
+                .HasIndex(mi => mi.Codigo)
+                .IsUnique();
 
             base.OnModelCreating(modelBuilder);
         }
