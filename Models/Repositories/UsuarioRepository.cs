@@ -81,11 +81,12 @@ namespace CCC_Rugby_Web.Models.Repositories
                 var AmenuGroups = await context.MenuGroups
                     .Where(mg => !mg.BorradoLogico)
                     .ToListAsync();
-                var AmenuItems = await context.MenuItems
-                    .Where(mi => !mi.BorradoLogico && AmenuGroups.Select(mg => mg.Id).Contains(mi.MenuGrupoId))
-                    .ToListAsync();
+                
                 foreach (var grupo in AmenuGroups)
-                    {
+                {
+                    var AmenuItems = await context.MenuItems
+                    .Where(mi => !mi.BorradoLogico && grupo.Id == mi.MenuGrupoId)
+                    .ToListAsync();
                     List<MenuItemDTO> itemsDto = new List<MenuItemDTO>();
                     foreach (var item in AmenuItems)
                     {
