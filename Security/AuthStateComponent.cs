@@ -42,7 +42,6 @@ namespace CCC_Rugby_Web.Security
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Thumbprint, user.AvatarArchivo?.Base64.ToString() ?? ""),
             };
             if (roles != null)
             {
