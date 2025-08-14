@@ -64,9 +64,8 @@
                     <MudDivider Style="max-height:1px" />
                     @if (menuLoaded)
                     {
-                        foreach (var group in menuGroups)
+                        foreach (var group in menu.MenuGrupos)
                         {
-                            
                             <MudNavGroup Title="@group.Nombre" Icon="@group.Icono">
                                 @foreach (var item in group.MenuItems)
                                 {
@@ -121,7 +120,7 @@
     private string avatarUrl = "";
     private bool isLoadingAvatar = true;
     private int? currentUserId;
-    private List<MenuGroupDTO> menuGroups = new List<MenuGroupDTO>();
+    private MenuDTO menu = new MenuDTO();
 
     private string appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.1";
 
@@ -139,10 +138,10 @@
         {
             if(currentUserId > 0)
             {
-                var response = await httpClient.GetAsync($"/api/Usuario/GetMainMenu/{currentUserId}");
+                var response = await httpClient.GetAsync($"/api/Usuario/GetMainMenu/mainmenu/{currentUserId}");
                 if (response.IsSuccessStatusCode)
                 {
-                    menuGroups = await response.Content.ReadFromJsonAsync<List<MenuGroupDTO>>() ?? new List<MenuGroupDTO>();
+                    menu = await response.Content.ReadFromJsonAsync<MenuDTO>() ?? new MenuDTO();
                 }
                 else
                 {
