@@ -1,18 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
-@using System.Security.Claims
 
 <AuthorizeView Roles="@CombinedRoles">
     <Authorized>
-        <CascadingAuthenticationState>
-            @ChildContent
-        </CascadingAuthenticationState>
+        @ChildContent
     </Authorized>
     <NotAuthorized>
         @if (NotAuthorizedContent != null)
         {
-            <CascadingAuthenticationState>
-                @NotAuthorizedContent
-            </CascadingAuthenticationState>
+            @NotAuthorizedContent
         }
         else
         {
@@ -34,13 +29,14 @@
     {
         get
         {
-            var rolesList = new List<string> { "Admin" };
+            var rolesList = new List<string> { AdminRoleCode }; // Siempre incluye Admin
 
             if (!string.IsNullOrEmpty(Roles))
             {
                 var additionalRoles = Roles.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                           .Select(r => r.Trim())
-                                          .Where(r => !string.IsNullOrEmpty(r));
+                                          .Where(r => !string.IsNullOrEmpty(r))
+                                          .Where(r => !r.Equals(AdminRoleCode, StringComparison.OrdinalIgnoreCase)); // Evita duplicados
                 rolesList.AddRange(additionalRoles);
             }
 
