@@ -19,7 +19,10 @@ namespace CCC_Rugby_Web.Security
         {
             string? token = Context.Request.Cookies[TokenCookieName];
             if (string.IsNullOrEmpty(token))
+            {
                 return AuthenticateResult.Fail("Authentication Failed");
+            }
+                
 
             var userClaims = authStateComponent.VerifyUser(token);
             if (userClaims != null)

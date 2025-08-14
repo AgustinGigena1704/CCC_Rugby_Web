@@ -24,21 +24,22 @@
     [Parameter] public string Roles { get; set; } = "";
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public RenderFragment? NotAuthorizedContent { get; set; }
-    
+
     private string CombinedRoles
     {
         get
         {
-            var rolesList = new List<string> { "Admin" };
-            
+            var rolesList = new List<string> { AdminRoleCode }; // Siempre incluye Admin
+
             if (!string.IsNullOrEmpty(Roles))
             {
                 var additionalRoles = Roles.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                           .Select(r => r.Trim())
-                                          .Where(r => !string.IsNullOrEmpty(r));
+                                          .Where(r => !string.IsNullOrEmpty(r))
+                                          .Where(r => !r.Equals(AdminRoleCode, StringComparison.OrdinalIgnoreCase)); // Evita duplicados
                 rolesList.AddRange(additionalRoles);
             }
-            
+
             return string.Join(",", rolesList);
         }
     }

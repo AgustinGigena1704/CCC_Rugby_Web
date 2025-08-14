@@ -10,9 +10,11 @@ namespace CCC_Rugby_Web.Services
         {
             this.jsRuntime = jsRuntime;
         }
-        public async Task SetCookieAsync(string name, string value, int days)
+        public async Task SetCookieAsync(string name, string value, DateTime vencimiento)
         {
-            await jsRuntime.InvokeVoidAsync("setCookie", name, value, days);
+            string x = vencimiento.ToString("R");
+            string expires = x.Replace("GMT", "UTC");
+            await jsRuntime.InvokeVoidAsync("setCookie", name, value, expires);
         }
 
         public async Task DeleteCookieAsync(string name)

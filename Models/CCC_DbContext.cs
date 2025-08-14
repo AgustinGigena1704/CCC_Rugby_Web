@@ -1,5 +1,6 @@
 ﻿using CCC_Rugby_Web.Models.Entityes;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor;
 
 namespace CCC_Rugby_Web.Models
 {
@@ -13,25 +14,73 @@ namespace CCC_Rugby_Web.Models
         public DbSet<Role> Roles { get; set; }
         public DbSet<Persona> Personas { get; set; }
         public DbSet<Archivo> Archivos { get; set; }
+        public DbSet<Permiso> Permisos { get; set; }
+        public DbSet<RolPermiso> RolPermisos { get; set; }
+        public DbSet<Menu> Menus { get; set; }
+        public DbSet<MenuGroup> MenuGroups { get; set; }
+        public DbSet<MenuItem> MenuItems { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             foreach (var entityType in modelBuilder.Model.GetEntityTypes()
-                         .Where(t => typeof(GenericEntity).IsAssignableFrom(t.ClrType)))
+                         .Where(t => typeof(IGenericEntityWithCreated).IsAssignableFrom(t.ClrType)))
             {
                 var entity = modelBuilder.Entity(entityType.ClrType);
-                entity.HasOne(typeof(Usuario), nameof(GenericEntity.CreatedByUsuario))
+
+                entity.HasOne(typeof(Usuario), nameof(IGenericEntityWithCreated.CreatedByUsuario))
                     .WithMany()
-                    .HasForeignKey(nameof(GenericEntity.CreatedBy))
+                    .HasForeignKey(nameof(IGenericEntityWithCreated.CreatedBy))
                     .OnDelete(DeleteBehavior.Restrict);
-                entity.HasOne(typeof(Usuario), nameof(GenericEntity.UpdatedByUsuario))
+
+                entity.HasOne(typeof(Usuario), nameof(IGenericEntityWithCreated.UpdatedByUsuario))
                     .WithMany()
-                    .HasForeignKey(nameof(GenericEntity.UpdatedBy))
+                    .HasForeignKey(nameof(IGenericEntityWithCreated.UpdatedBy))
                     .OnDelete(DeleteBehavior.Restrict);
-                entity.HasOne(typeof(Usuario), nameof(GenericEntity.DeletedByUsuario))
+                entity.Property(nameof(IGenericEntityWithCreated.UpdatedAt))
+                    .HasDefaultValue(null);
+                entity.Property(nameof(IGenericEntityWithCreated.UpdatedBy))
+                    .HasDefaultValue(null);
+
+                entity.HasOne(typeof(Usuario), nameof(IGenericEntityWithCreated.DeletedByUsuario))
                     .WithMany()
-                    .HasForeignKey(nameof(GenericEntity.DeletedBy))
+                    .HasForeignKey(nameof(IGenericEntityWithCreated.DeletedBy))
                     .OnDelete(DeleteBehavior.SetNull);
+                entity.Property(nameof(IGenericEntityWithCreated.DeletedAt))
+                    .HasDefaultValue(null);
+                entity.Property(nameof(IGenericEntityWithCreated.DeletedBy))
+                    .HasDefaultValue(null);
+
+                entity.Property(nameof(IGenericEntityWithCreated.BorradoLogico))
+                    .HasDefaultValue(false);
+            }
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes()
+                         .Where(t => typeof(IGenericEntity).IsAssignableFrom(t.ClrType) &&
+                                    !typeof(IGenericEntityWithCreated).IsAssignableFrom(t.ClrType)))
+            {
+                var entity = modelBuilder.Entity(entityType.ClrType);
+
+                entity.HasOne(typeof(Usuario), nameof(IGenericEntity.UpdatedByUsuario))
+                    .WithMany()
+                    .HasForeignKey(nameof(IGenericEntity.UpdatedBy))
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.Property(nameof(IGenericEntity.UpdatedAt))
+                    .HasDefaultValue(null);
+                entity.Property(nameof(IGenericEntity.UpdatedBy))
+                    .HasDefaultValue(null);
+
+                entity.HasOne(typeof(Usuario), nameof(IGenericEntity.DeletedByUsuario))
+                    .WithMany()
+                    .HasForeignKey(nameof(IGenericEntity.DeletedBy))
+                    .OnDelete(DeleteBehavior.SetNull);
+                entity.Property(nameof(IGenericEntity.DeletedAt))
+                    .HasDefaultValue(null);
+                entity.Property(nameof(IGenericEntity.DeletedBy))
+                    .HasDefaultValue(null);
+
+                entity.Property(nameof(IGenericEntity.BorradoLogico))
+                    .HasDefaultValue(false);
             }
 
             modelBuilder.Entity<Usuario>()
@@ -85,12 +134,23 @@ namespace CCC_Rugby_Web.Models
                 .HasOne<Role>(mg => mg.Rol)
                 .WithMany()
                 .HasForeignKey(mg => mg.RolId);
+            modelBuilder.Entity<MenuGroup>()
+                .Property(mg => mg.RolId)
+                .HasDefaultValue(null);
+            modelBuilder.Entity<MenuGroup>()
+                .Property(mg => mg._icono)
+                .HasDefaultValue(Icons.Material.Filled.List);
 
             modelBuilder.Entity<MenuItem>()
                 .HasOne<MenuGroup>(mi => mi.MenuGrupo)
                 .WithMany()
                 .HasForeignKey(mi => mi.MenuGrupoId);
-
+            modelBuilder.Entity<MenuItem>()
+                .Property(mi => mi._icono)
+                .HasDefaultValue(Icons.Material.Filled.List);
+            modelBuilder.Entity<MenuItem>()
+                .HasIndex(mi => mi.Codigo)
+                .IsUnique();
 
             base.OnModelCreating(modelBuilder);
         }

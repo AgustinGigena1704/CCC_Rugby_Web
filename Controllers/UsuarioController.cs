@@ -1,4 +1,5 @@
-﻿using CCC_Rugby_Web.Models.Entityes;
+﻿using CCC_Rugby_Web.DTOs;
+using CCC_Rugby_Web.Models.Entityes;
 using CCC_Rugby_Web.Models.Repositories;
 using CCC_Rugby_Web.Services;
 using Microsoft.AspNetCore.Components.Forms;
@@ -64,8 +65,8 @@ namespace CCC_Rugby_Web.Controllers
                 usuario.AvatarArchivo.DeletedByUsuario = usuario;
                 await archivoRepository.UpdateAsync(usuario.AvatarArchivo, usuario);
             }
-            
-            
+
+
             Archivo newAvatar = new Archivo
             {
                 Nombre = file.FileName,
@@ -78,7 +79,7 @@ namespace CCC_Rugby_Web.Controllers
                 Extension = Path.GetExtension(file.FileName).TrimStart('.').ToLowerInvariant(),
                 CreatedByUsuario = usuario,
                 UpdatedByUsuario = usuario
-                
+
             };
             await archivoRepository.CreateAsync(newAvatar, usuario);
             usuario.AvatarArchivo = newAvatar;
@@ -86,6 +87,18 @@ namespace CCC_Rugby_Web.Controllers
             usuarioRepo.Update(usuario);
             await entityManager.SaveChangesAsync();
             return Ok("Avatar actualizado correctamente.");
+        }
+
+        [HttpGet("GetMainMenu/{menuCodigo}/{id}")]
+        public async Task<IActionResult> GetMainMenu(string menuCodigo, int id)
+        {
+            MenuDTO menu = await entityManager.GetRepository<UsuarioRepository>().GetMenuDtoByCodigo(menuCodigo, id);
+            if (menu.MenuGrupos.Count <= 0)
+            {
+                return NotFound("No se encontraron los item del menu");
+            }
+            return Ok(menu);
+
         }
     }
 }

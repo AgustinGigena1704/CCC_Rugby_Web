@@ -7,22 +7,22 @@ namespace CCC_Rugby_Web.Models.Entityes
     public class Persona : GenericEntity
     {
         [Required]
-        [Column("tipo_documento")]
+        [Column("tipo_documento", Order = 1)]
         public required string TipoDocumento { get; set; }
         [Required]
-        [Column("documento")]
+        [Column("documento", Order = 2)]
         public required string Documento { get; set; }
         [Required]
-        [Column("nombres")]
+        [Column("nombres", Order = 3)]
         public required string Nombres { get; set; }
         [Required]
-        [Column("apellidos")]
+        [Column("apellidos", Order = 4)]
         public required string Apellidos { get; set; }
         [Required]  
-        [Column("fecha_nacimiento")]
+        [Column("fecha_nacimiento", Order = 5)]
         public required DateOnly FechaNacimiento { get; set; }
         [Required]
-        [Column("genero")]
+        [Column("genero", Order = 6)]
         public required string Genero { get; set; }
     }
 }

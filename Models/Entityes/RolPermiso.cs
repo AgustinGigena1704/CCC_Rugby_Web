@@ -6,6 +6,7 @@ namespace CCC_Rugby_Web.Models.Entityes
     [Table("rol_permiso")]
     public class RolPermiso
     {
+        [Key]
         [Column("rol_id")]
         [Required]
         public int RolId { get; set; }

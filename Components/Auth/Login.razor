@@ -7,15 +7,15 @@
 @inject NavigationManager navManager
 @inject HttpClient httpClient
 
-<MudPaper Style="" MaxWidth="400px" MaxHeight="600px">
-    <MudContainer Style="height:600px; width:400px; display:flex; flex-direction:column;">
+<MudPaper Style="width: 90%; height: 90%" MaxWidth="400px" MaxHeight="600px">
+    <MudContainer Style="height:100%; width:100%; display:flex; flex-direction:column;">
         <br/>
         <MudText Align="Align.Center" Typo="Typo.h3">Iniciar Sesion</MudText>
         <div class="d-flex justify-center">
             <MudImage Style="max-width:80%;" Class="my-4" Src="images\ciudad_de_campana.png"></MudImage>
         </div>
         <MudForm Model="@loginDTO" @ref="form" Class="mt-4">
-            <MudTextField @bind-Value="loginDTO.Username" Label="Username" Required="true" />
+            <MudTextField @bind-Value="loginDTO.Username" Label="Username" Required="true"/>
             <br />
             <MudTextField @bind-Value="loginDTO.Password" Label="Password" InputType="InputType.Password" Required="true" />
             <br />
