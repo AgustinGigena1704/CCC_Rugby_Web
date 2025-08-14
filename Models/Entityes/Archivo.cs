@@ -9,17 +9,17 @@ namespace CCC_Rugby_Web.Models.Entityes
     {
         [Required]
         [StringLength(100)]
-        [Column("nombre")]
+        [Column("nombre", Order = 1)]
         public required string Nombre { get; set; }
         [Required]
-        [Column("type")]
+        [Column("type", Order = 2)]
         public required ArchivoType Type { get; set; }
         [Required]
-        [Column("extension")]
+        [Column("extension", Order = 3)]
         [StringLength(10)]
         public required string Extension { get; set; }  
         [Required]
-        [Column("base64", TypeName = "blob")]
+        [Column("base64", TypeName = "blob", Order = 4)]
         public required byte[] bytes { get; set; }
 
         [NotMapped]

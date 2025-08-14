@@ -12,5 +12,7 @@
             Audio, // 3
             Document // 4
         }
+
+        public const string AdminRoleCode = "admin";
     }
 }

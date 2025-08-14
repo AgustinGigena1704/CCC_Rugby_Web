@@ -89,15 +89,15 @@ namespace CCC_Rugby_Web.Controllers
             return Ok("Avatar actualizado correctamente.");
         }
 
-        [HttpGet("GetMainMenu/{id}")]
-        public async Task<IActionResult> GetMainMenu(int id)
+        [HttpGet("GetMainMenu/{menuCodigo}/{id}")]
+        public async Task<IActionResult> GetMainMenu(string menuCodigo, int id)
         {
-            List<MenuGroupDTO> menuGroups = await entityManager.GetRepository<UsuarioRepository>().GetMenuDto(id);
-            if (menuGroups.Count <= 0)
+            MenuDTO menu = await entityManager.GetRepository<UsuarioRepository>().GetMenuDtoByCodigo(menuCodigo, id);
+            if (menu.MenuGrupos.Count <= 0)
             {
                 return NotFound("No se encontraron los item del menu");
             }
-            return Ok(menuGroups.Distinct());
+            return Ok(menu);
 
         }
     }

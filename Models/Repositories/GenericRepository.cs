@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CCC_Rugby_Web.Models.Repositories
 {
-    public class GenericRepository<T> where T : class, IBasePropeties
+    public class GenericRepository<T> where T : class, IGenericEntity
     {
         protected readonly CCC_DbContext context;
         protected readonly DbSet<T> _dbSet;

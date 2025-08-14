@@ -24,12 +24,13 @@ namespace CCC_Rugby_Web.Security
 
         public async Task<string> Auth(Usuario user, List<Role>? roles)
         {
-            var token = GenerateJwt(user, roles);
-            await cookieService.SetCookieAsync(tokenCookieName, token, 1);
+            DateTime vencimiento = DateTime.UtcNow.AddHours(1);
+            var token = GenerateJwt(user, roles, vencimiento);
+            await cookieService.SetCookieAsync(tokenCookieName, token, vencimiento);
             return token;
         }
 
-        private string GenerateJwt(Usuario user, List<Role>? roles)
+        private string GenerateJwt(Usuario user, List<Role>? roles, DateTime vencimiento)
         {
             var SecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
@@ -45,14 +46,14 @@ namespace CCC_Rugby_Web.Security
             };
             if (roles != null)
             {
-                var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role.Name)).ToList();
+                var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role.Codigo)).ToList();
                 claims.AddRange(roleClaims);
             }
             var token = new JwtSecurityToken(
                 issuer: "CCC_Rugby_Web",
                 audience: "CCC_Rugby_Web_Audience",
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: vencimiento,
                 signingCredentials: credentials
             );
 

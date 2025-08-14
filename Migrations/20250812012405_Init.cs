@@ -27,17 +27,43 @@ namespace CCC_Rugby_Web.Migrations
                     extension = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     base64 = table.Column<byte[]>(type: "blob", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<int>(type: "int", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_by = table.Column<int>(type: "int", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     deleted_by = table.Column<int>(type: "int", nullable: true),
-                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<int>(type: "int", nullable: false)
+                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_archivo", x => x.id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "menu",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<int>(type: "int", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    updated_by = table.Column<int>(type: "int", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    deleted_by = table.Column<int>(type: "int", nullable: true),
+                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    nombre = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    descripcion = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    codigo = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_menu", x => x.id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -51,20 +77,27 @@ namespace CCC_Rugby_Web.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     descripcion = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    rol_id = table.Column<int>(type: "int", nullable: false),
+                    menu_id = table.Column<int>(type: "int", nullable: false),
+                    rol_id = table.Column<int>(type: "int", nullable: true),
                     icono = table.Column<string>(type: "longtext", nullable: false, defaultValue: "<path d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z\"/>")
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<int>(type: "int", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_by = table.Column<int>(type: "int", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     deleted_by = table.Column<int>(type: "int", nullable: true),
-                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<int>(type: "int", nullable: false)
+                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_menu_grupo", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_menu_grupo_menu_menu_id",
+                        column: x => x.menu_id,
+                        principalTable: "menu",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -74,7 +107,7 @@ namespace CCC_Rugby_Web.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Nombre = table.Column<string>(type: "longtext", nullable: false)
+                    nombre = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     descripcion = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -85,13 +118,13 @@ namespace CCC_Rugby_Web.Migrations
                     menu_grupo_id = table.Column<int>(type: "int", nullable: false),
                     icono = table.Column<string>(type: "longtext", nullable: false, defaultValue: "<path d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z\"/>")
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<int>(type: "int", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_by = table.Column<int>(type: "int", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     deleted_by = table.Column<int>(type: "int", nullable: true),
-                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<int>(type: "int", nullable: false)
+                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -111,19 +144,19 @@ namespace CCC_Rugby_Web.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<int>(type: "int", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    updated_by = table.Column<int>(type: "int", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    deleted_by = table.Column<int>(type: "int", nullable: true),
+                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
                     nombre = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     descripcion = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     codigo = table.Column<string>(type: "varchar(255)", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    updated_by = table.Column<int>(type: "int", nullable: false),
-                    deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    deleted_by = table.Column<int>(type: "int", nullable: true),
-                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
@@ -137,6 +170,13 @@ namespace CCC_Rugby_Web.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<int>(type: "int", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    updated_by = table.Column<int>(type: "int", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    deleted_by = table.Column<int>(type: "int", nullable: true),
+                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
                     tipo_documento = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     documento = table.Column<string>(type: "varchar(255)", nullable: false)
@@ -147,14 +187,7 @@ namespace CCC_Rugby_Web.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     fecha_nacimiento = table.Column<DateOnly>(type: "date", nullable: false),
                     genero = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    updated_by = table.Column<int>(type: "int", nullable: false),
-                    deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    deleted_by = table.Column<int>(type: "int", nullable: true),
-                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
@@ -183,7 +216,7 @@ namespace CCC_Rugby_Web.Migrations
                     updated_by = table.Column<int>(type: "int", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     deleted_by = table.Column<int>(type: "int", nullable: true),
-                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -202,13 +235,14 @@ namespace CCC_Rugby_Web.Migrations
                         name: "FK_usuario_usuario_deleted_by",
                         column: x => x.deleted_by,
                         principalTable: "usuario",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_usuario_usuario_updated_by",
                         column: x => x.updated_by,
                         principalTable: "usuario",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -224,13 +258,13 @@ namespace CCC_Rugby_Web.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     codigo = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    created_by = table.Column<int>(type: "int", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     updated_by = table.Column<int>(type: "int", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     deleted_by = table.Column<int>(type: "int", nullable: true),
-                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    created_by = table.Column<int>(type: "int", nullable: false)
+                    borrado_logico = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -322,6 +356,21 @@ namespace CCC_Rugby_Web.Migrations
                 column: "updated_by");
 
             migrationBuilder.CreateIndex(
+                name: "IX_menu_created_by",
+                table: "menu",
+                column: "created_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_deleted_by",
+                table: "menu",
+                column: "deleted_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_updated_by",
+                table: "menu",
+                column: "updated_by");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_menu_grupo_created_by",
                 table: "menu_grupo",
                 column: "created_by");
@@ -330,6 +379,11 @@ namespace CCC_Rugby_Web.Migrations
                 name: "IX_menu_grupo_deleted_by",
                 table: "menu_grupo",
                 column: "deleted_by");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_menu_grupo_menu_id",
+                table: "menu_grupo",
+                column: "menu_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_menu_grupo_rol_id",
@@ -485,12 +539,35 @@ namespace CCC_Rugby_Web.Migrations
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
+                name: "FK_menu_usuario_created_by",
+                table: "menu",
+                column: "created_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_menu_usuario_deleted_by",
+                table: "menu",
+                column: "deleted_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.SetNull);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_menu_usuario_updated_by",
+                table: "menu",
+                column: "updated_by",
+                principalTable: "usuario",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_menu_grupo_rol_rol_id",
                 table: "menu_grupo",
                 column: "rol_id",
                 principalTable: "rol",
-                principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_menu_grupo_usuario_created_by",
@@ -630,6 +707,9 @@ namespace CCC_Rugby_Web.Migrations
 
             migrationBuilder.DropTable(
                 name: "permiso");
+
+            migrationBuilder.DropTable(
+                name: "menu");
 
             migrationBuilder.DropTable(
                 name: "rol");

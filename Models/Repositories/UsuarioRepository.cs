@@ -69,14 +69,17 @@ namespace CCC_Rugby_Web.Models.Repositories
             return roles;
         }
 
-        public async Task<List<MenuGroupDTO>> GetMenuDto(int userId)
+        public async Task<MenuDTO> GetMenuDtoByCodigo(string codigo, int userId)
         {
-            var r = new List<MenuGroupDTO>();
+            var menu = await context.Menus
+                .FirstOrDefaultAsync(m => m.Codigo == codigo && !m.BorradoLogico);
+            var r = new MenuDTO();
+            if (menu == null)
+                return r;
             var roles = await GetRoles(userId);
             if (roles == null || !roles.Any())
                 return r;
-
-            if(roles.Select(r => r.Codigo).Contains("admin"))
+            if (roles.Select(r => r.Codigo).Contains("admin"))
             {
                 var AmenuGroups = await context.MenuGroups
                     .Where(mg => !mg.BorradoLogico)
@@ -97,7 +100,7 @@ namespace CCC_Rugby_Web.Models.Repositories
                             Url = item.Url
                         });
                     }
-                    r.Add(new MenuGroupDTO
+                    r.MenuGrupos.Add(new MenuGroupDTO
                     {
                         Nombre = grupo.Nombre,
                         Icono = grupo.Icono,
@@ -108,14 +111,15 @@ namespace CCC_Rugby_Web.Models.Repositories
             }
 
             var menuGroups = await context.MenuGroups
-                .Where(mg => !mg.BorradoLogico && roles.Select(r => r.Id).Contains(mg.RolId))
+                .Where(mg => !mg.BorradoLogico && mg.MenuId == menu.Id && roles.Select(r => r.Id).Contains(mg.RolId??0))
                 .ToListAsync();
-            var menuItems = await context.MenuItems
-                .Where(mi => !mi.BorradoLogico && menuGroups.Select(mg => mg.Id).Contains(mi.MenuGrupoId))
-                .ToListAsync();
+            
 
             foreach (var grupo in menuGroups)
             {
+                var menuItems = await context.MenuItems
+                .Where(mi => !mi.BorradoLogico && grupo.Id == mi.MenuGrupoId)
+                .ToListAsync();
                 List<MenuItemDTO> itemsDto = new List<MenuItemDTO>();
                 foreach (var item in menuItems)
                 {
@@ -126,7 +130,7 @@ namespace CCC_Rugby_Web.Models.Repositories
                         Url = item.Url
                     });
                 }
-                r.Add(new MenuGroupDTO
+                r.MenuGrupos.Add(new MenuGroupDTO
                 {
                     Nombre = grupo.Nombre,
                     Icono = grupo.Icono,

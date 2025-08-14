@@ -4,15 +4,20 @@
 @using System.Net.Http.Headers;
 @inject HttpClient httpClient
 
-<CustomView Roles="Empanadas">
-    <MudPaper>
+<CustomView Roles="empanadas">
+    <MudPaper Width="90%" Height="95%">
+        <MudToolBar Dense="true" Class="pa-0">
+            <MudText Typo="Typo.h5" Class="px-2">Empanadas</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">Nueva Venta</MudButton>    
+        </MudToolBar>
         <MudContainer>
-            <MudText></MudText>
+            <MudText>XXX</MudText>
         </MudContainer>
     </MudPaper>
 </CustomView>
 
 
 @code {
-
+    
 }
