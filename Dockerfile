@@ -12,12 +12,13 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Copiar el certificado SSL
+# Copiar el certificado SSL (si es necesario)
 COPY ca.pem /app/ca.pem
 
-# Variables de entorno
-ENV ASPNETCORE_URLS=http://+:8080
+# Variables de entorno para Railway
+ENV ASPNETCORE_URLS=http://+:$PORT
 ENV ASPNETCORE_ENVIRONMENT=Production
 
-EXPOSE 8080
+# Railway asigna dinámicamente el puerto
+EXPOSE $PORT
 ENTRYPOINT ["dotnet", "CCC_Rugby_Web.dll"]
