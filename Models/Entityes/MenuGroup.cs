@@ -34,7 +34,7 @@ namespace CCC_Rugby_Web.Models.Entityes
             set => _icono = value;
         }
 
-        public required Role Rol { get; set; }
+        public required Rol Rol { get; set; }
         public required Menu Menu { get; set; }
     }
 }

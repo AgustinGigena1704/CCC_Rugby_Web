@@ -2,7 +2,7 @@
 {
     public class Constants
     {
-        public const string TokenCookieName = "authToken";
+        public const string TOKEN_COOKIE_NAME = "authToken";
 
         public enum ArchivoType
         {
@@ -13,6 +13,6 @@
             Document // 4
         }
 
-        public const string AdminRoleCode = "admin";
+        public const string ROL_ADMIN_CODE = "admin";
     }
 }

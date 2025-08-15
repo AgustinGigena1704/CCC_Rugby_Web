@@ -59,7 +59,7 @@ namespace CCC_Rugby_Web.Models.Repositories
             return user;
         }
 
-        public async Task<List<Role>> GetRoles(int userId)
+        public async Task<List<Rol>> GetRoles(int userId)
         {
             var roles = await context.UsuarioRoles
                 .Where(ur => ur.UsuarioId == userId)

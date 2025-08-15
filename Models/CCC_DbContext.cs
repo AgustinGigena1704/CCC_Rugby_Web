@@ -11,7 +11,7 @@ namespace CCC_Rugby_Web.Models
         }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<UsuarioRol> UsuarioRoles { get; set; }
-        public DbSet<Role> Roles { get; set; }
+        public DbSet<Rol> Roles { get; set; }
         public DbSet<Persona> Personas { get; set; }
         public DbSet<Archivo> Archivos { get; set; }
         public DbSet<Permiso> Permisos { get; set; }
@@ -113,7 +113,7 @@ namespace CCC_Rugby_Web.Models
                 .WithMany()
                 .HasForeignKey(ur => ur.UsuarioId);
             modelBuilder.Entity<UsuarioRol>()
-                .HasOne<Role>(ur => ur.Role)
+                .HasOne<Rol>(ur => ur.Role)
                 .WithMany()
                 .HasForeignKey(ur => ur.RoleId);
 
@@ -122,7 +122,7 @@ namespace CCC_Rugby_Web.Models
                 .IsUnique();
 
             modelBuilder.Entity<RolPermiso>()
-                .HasOne<Role>(rp => rp.Rol)
+                .HasOne<Rol>(rp => rp.Rol)
                 .WithMany()
                 .HasForeignKey(rp => rp.RolId);
             modelBuilder.Entity<RolPermiso>()
@@ -131,7 +131,7 @@ namespace CCC_Rugby_Web.Models
                 .HasForeignKey(rp => rp.PermisoId);
 
             modelBuilder.Entity<MenuGroup>()
-                .HasOne<Role>(mg => mg.Rol)
+                .HasOne<Rol>(mg => mg.Rol)
                 .WithMany()
                 .HasForeignKey(mg => mg.RolId);
             modelBuilder.Entity<MenuGroup>()
