@@ -13,7 +13,7 @@ namespace CCC_Rugby_Web.Security
     {
         private readonly string jwtKey;
         private readonly CookieService cookieService;
-        private readonly string tokenCookieName = TokenCookieName;
+        private readonly string tokenCookieName = TOKEN_COOKIE_NAME;
 
 
         public AuthStateComponent(CookieService cookieService, IConfiguration configuration)
@@ -22,7 +22,7 @@ namespace CCC_Rugby_Web.Security
             this.jwtKey = configuration["JWT:Key"] ?? throw new InvalidOperationException("JWT:Key not found in configuration");
         }
 
-        public async Task<string> Auth(Usuario user, List<Role>? roles)
+        public async Task<string> Auth(Usuario user, List<Rol>? roles)
         {
             DateTime vencimiento = DateTime.UtcNow.AddHours(1);
             var token = GenerateJwt(user, roles, vencimiento);
@@ -30,7 +30,7 @@ namespace CCC_Rugby_Web.Security
             return token;
         }
 
-        private string GenerateJwt(Usuario user, List<Role>? roles, DateTime vencimiento)
+        private string GenerateJwt(Usuario user, List<Rol>? roles, DateTime vencimiento)
         {
             var SecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);

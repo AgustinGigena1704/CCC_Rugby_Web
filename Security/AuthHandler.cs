@@ -17,7 +17,7 @@ namespace CCC_Rugby_Web.Security
         }
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            string? token = Context.Request.Cookies[TokenCookieName];
+            string? token = Context.Request.Cookies[TOKEN_COOKIE_NAME];
             if (string.IsNullOrEmpty(token))
             {
                 return AuthenticateResult.Fail("Authentication Failed");

@@ -13,7 +13,7 @@ namespace CCC_Rugby_Web.Models.Entityes
         [Column("permiso_id")]
         [Required]
         public int PermisoId { get; set; }
-        public required Role Rol { get; set; }
+        public required Rol Rol { get; set; }
         public required Permiso Permiso { get; set; }
     }
 }

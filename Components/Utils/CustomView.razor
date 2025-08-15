@@ -29,14 +29,14 @@
     {
         get
         {
-            var rolesList = new List<string> { AdminRoleCode }; // Siempre incluye Admin
+            var rolesList = new List<string> { ROL_ADMIN_CODE }; // Siempre incluye Admin
 
             if (!string.IsNullOrEmpty(Roles))
             {
                 var additionalRoles = Roles.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                           .Select(r => r.Trim())
                                           .Where(r => !string.IsNullOrEmpty(r))
-                                          .Where(r => !r.Equals(AdminRoleCode, StringComparison.OrdinalIgnoreCase)); // Evita duplicados
+                                          .Where(r => !r.Equals(ROL_ADMIN_CODE, StringComparison.OrdinalIgnoreCase)); // Evita duplicados
                 rolesList.AddRange(additionalRoles);
             }
 

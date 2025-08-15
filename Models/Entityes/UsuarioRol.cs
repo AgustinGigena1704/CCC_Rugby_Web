@@ -13,6 +13,6 @@ namespace CCC_Rugby_Web.Models.Entityes
         public required int RoleId { get; set; }
         
         public required Usuario Usuario { get; set; }
-        public required Role Role { get; set; }
+        public required Rol Role { get; set; }
     }
 }
