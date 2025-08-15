@@ -22,12 +22,16 @@ if (builder.Environment.IsDevelopment())
     builder.Logging.SetMinimumLevel(LogLevel.Debug);
 }
 
-// Docker/Railway configuration - configurar puerto y URLs
+// Docker/Railway configuration - configurar puerto correctamente
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(int.Parse(port));
-});
+
+// Configurar Kestrel para escuchar en todas las interfaces
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
+// Configurar Data Protection para contenedores
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/tmp/dataprotection-keys"))
+    .SetApplicationName("CCC_Rugby_Web");
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
