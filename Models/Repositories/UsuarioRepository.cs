@@ -50,13 +50,14 @@ namespace CCC_Rugby_Web.Models.Repositories
                     .FirstOrDefaultAsync(u => u.Username == username && !u.BorradoLogico);
             }
 
-            if (user != null && Verify(password, HashPassword(user.Password)))
+            if (user != null && Verify(password, user.Password))
             {
                 user.LastLogin = DateTime.UtcNow;
                 await context.SaveChangesAsync();
+                return user;
             }
 
-            return user;
+            return null;
         }
 
         public async Task<List<Rol>> GetRoles(int userId)
