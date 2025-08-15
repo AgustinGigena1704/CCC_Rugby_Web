@@ -1,9 +1,10 @@
-﻿using CCC_Rugby_Web.DTOs;
+﻿using BCrypt.Net;
+using CCC_Rugby_Web.DTOs;
 using CCC_Rugby_Web.Models.Entityes;
 using CCC_Rugby_Web.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Text.RegularExpressions;
-using static BCrypt.Net.BCrypt;
 
 namespace CCC_Rugby_Web.Models.Repositories
 {
@@ -26,10 +27,9 @@ namespace CCC_Rugby_Web.Models.Repositories
         {
             if (!IsValidBCryptHash(user.Password))
             {
-                user.Password = HashPassword(user.Password);
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password, BCrypt.Net.BCrypt.GenerateSalt(12));
             }
             context.Usuarios.Update(user);
-
         }
 
         public async Task<Usuario?> GetByPassAndUser(string username, string password)
@@ -37,24 +37,70 @@ namespace CCC_Rugby_Web.Models.Repositories
             string patron = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
             Usuario? user;
 
-            if (Regex.IsMatch(username, patron))
+            try
             {
-                user = await context.Usuarios
-                    .Include(u => u.Persona)
-                    .Include(u => u.AvatarArchivo)
-                    .FirstOrDefaultAsync(u => u.Email == username && !u.BorradoLogico);
-            }
-            else
-            {
-                user = await context.Usuarios
-                    .FirstOrDefaultAsync(u => u.Username == username && !u.BorradoLogico);
-            }
+                if (Regex.IsMatch(username, patron))
+                {
+                    user = await context.Usuarios
+                        .Include(u => u.Persona)
+                        .Include(u => u.AvatarArchivo)
+                        .FirstOrDefaultAsync(u => u.Email == username && !u.BorradoLogico);
+                }
+                else
+                {
+                    user = await context.Usuarios
+                        .Include(u => u.Persona)
+                        .Include(u => u.AvatarArchivo)
+                        .FirstOrDefaultAsync(u => u.Username == username && !u.BorradoLogico);
+                }
 
-            if (user != null && Verify(password, user.Password))
+                if (user != null)
+                {
+                    // Verificar la contraseña con manejo de errores
+                    bool isValidPassword = false;
+
+                    try
+                    {
+                        isValidPassword = BCrypt.Net.BCrypt.Verify(password, user.Password);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log del error de BCrypt
+                        Console.WriteLine($"Error verificando contraseña con BCrypt: {ex.Message}");
+
+                        // Fallback: verificar si la contraseña está en texto plano (para migración)
+                        if (user.Password == password)
+                        {
+                            // Actualizar a hash BCrypt
+                            user.Password = BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));
+                            context.Usuarios.Update(user);
+                            await context.SaveChangesAsync();
+                            isValidPassword = true;
+                        }
+                    }
+
+                    if (isValidPassword)
+                    {
+                        user.LastLogin = DateTime.UtcNow;
+                        user.LoginTrys = 0; // Reset intentos fallidos
+                        await context.SaveChangesAsync();
+                        return user;
+                    }
+                    else
+                    {
+                        // Incrementar intentos fallidos
+                        user.LoginTrys++;
+                        if (user.LoginTrys >= 5)
+                        {
+                            user.Bloqueado = true;
+                        }
+                        await context.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
             {
-                user.LastLogin = DateTime.UtcNow;
-                await context.SaveChangesAsync();
-                return user;
+                Console.WriteLine($"Error en GetByPassAndUser: {ex.Message}");
             }
 
             return null;
@@ -74,23 +120,31 @@ namespace CCC_Rugby_Web.Models.Repositories
         {
             var menu = await context.Menus
                 .FirstOrDefaultAsync(m => m.Codigo == codigo && !m.BorradoLogico);
-            var r = new MenuDTO();
+            var r = new MenuDTO()
+            {
+                Nombre = menu?.Nombre ?? "Menu Principal",
+                Descripcion = menu?.Descripcion
+            };
+
             if (menu == null)
                 return r;
+
             var roles = await GetRoles(userId);
             if (roles == null || !roles.Any())
                 return r;
+
             if (roles.Select(r => r.Codigo).Contains("admin"))
             {
                 var AmenuGroups = await context.MenuGroups
-                    .Where(mg => !mg.BorradoLogico)
+                    .Where(mg => !mg.BorradoLogico && mg.MenuId == menu.Id)
                     .ToListAsync();
-                
+
                 foreach (var grupo in AmenuGroups)
                 {
                     var AmenuItems = await context.MenuItems
                     .Where(mi => !mi.BorradoLogico && grupo.Id == mi.MenuGrupoId)
                     .ToListAsync();
+
                     List<MenuItemDTO> itemsDto = new List<MenuItemDTO>();
                     foreach (var item in AmenuItems)
                     {
@@ -101,6 +155,7 @@ namespace CCC_Rugby_Web.Models.Repositories
                             Url = item.Url
                         });
                     }
+
                     r.MenuGrupos.Add(new MenuGroupDTO
                     {
                         Nombre = grupo.Nombre,
@@ -112,15 +167,15 @@ namespace CCC_Rugby_Web.Models.Repositories
             }
 
             var menuGroups = await context.MenuGroups
-                .Where(mg => !mg.BorradoLogico && mg.MenuId == menu.Id && roles.Select(r => r.Id).Contains(mg.RolId??0))
+                .Where(mg => !mg.BorradoLogico && mg.MenuId == menu.Id && roles.Select(r => r.Id).Contains(mg.RolId ?? 0))
                 .ToListAsync();
-            
 
             foreach (var grupo in menuGroups)
             {
                 var menuItems = await context.MenuItems
                 .Where(mi => !mi.BorradoLogico && grupo.Id == mi.MenuGrupoId)
                 .ToListAsync();
+
                 List<MenuItemDTO> itemsDto = new List<MenuItemDTO>();
                 foreach (var item in menuItems)
                 {
@@ -131,6 +186,7 @@ namespace CCC_Rugby_Web.Models.Repositories
                         Url = item.Url
                     });
                 }
+
                 r.MenuGrupos.Add(new MenuGroupDTO
                 {
                     Nombre = grupo.Nombre,
@@ -138,7 +194,41 @@ namespace CCC_Rugby_Web.Models.Repositories
                     MenuItems = itemsDto
                 });
             }
-                return r;
+
+            return r;
+        }
+
+        // Método para crear usuario con contraseña hasheada
+        public async Task<Usuario> CreateUserAsync(Usuario user, string plainPassword)
+        {
+            user.Password = BCrypt.Net.BCrypt.HashPassword(plainPassword, BCrypt.Net.BCrypt.GenerateSalt(12));
+            await context.Usuarios.AddAsync(user);
+            await context.SaveChangesAsync();
+            return user;
+        }
+
+        // Método para cambiar contraseña
+        public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+        {
+            var user = await GetById(userId);
+            if (user == null) return false;
+
+            try
+            {
+                if (BCrypt.Net.BCrypt.Verify(currentPassword, user.Password))
+                {
+                    user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword, BCrypt.Net.BCrypt.GenerateSalt(12));
+                    context.Usuarios.Update(user);
+                    await context.SaveChangesAsync();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cambiando contraseña: {ex.Message}");
+            }
+
+            return false;
         }
 
         private bool IsValidBCryptHash(string hash)
@@ -146,6 +236,7 @@ namespace CCC_Rugby_Web.Models.Repositories
             if (string.IsNullOrEmpty(hash))
                 return false;
 
+            // BCrypt hash debe tener 60 caracteres y empezar con $2a$, $2b$, $2x$, o $2y$
             return hash.Length == 60 &&
                    (hash.StartsWith("$2a$") ||
                     hash.StartsWith("$2b$") ||
