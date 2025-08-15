@@ -1,0 +1,15 @@
+node_modules/
+.git/
+.vs/
+.vscode/
+*.user
+*.tmp
+*.log
+bin/Debug/
+obj/Debug/
+.env
+appsettings.Development.json
+*.pdb
+TestResults/
+.nyc_output/
+coverage/

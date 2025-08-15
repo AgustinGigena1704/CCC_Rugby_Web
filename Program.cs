@@ -22,15 +22,23 @@ if (builder.Environment.IsDevelopment())
     builder.Logging.SetMinimumLevel(LogLevel.Debug);
 }
 
+// Railway configuration - configurar puerto
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
 
+// Database configuration - usar variable de entorno en producción
+var connectionString = builder.Environment.IsProduction()
+    ? Environment.GetEnvironmentVariable("CONNECTION_STRING") ?? builder.Configuration.GetConnectionString("CCC_DbContext")
+    : builder.Configuration.GetConnectionString("CCC_DbContext");
+
 builder.Services.AddDbContext<CCC_DbContext>(opt =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("CCC_DbContext");
     opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 
@@ -71,6 +79,16 @@ builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<AuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<AuthStateProvider>());
 
+// JWT Key from environment variable in production
+if (builder.Environment.IsProduction())
+{
+    var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+    if (!string.IsNullOrEmpty(jwtKey))
+    {
+        builder.Configuration["JWT:Key"] = jwtKey;
+    }
+}
+
 // Authentication configuration
 builder.Services.AddAuthentication("CustomScheme")
     .AddScheme<CustomOptions, AuthHandler>("CustomScheme", options => { });
@@ -87,7 +105,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// No usar HTTPS redirect en Railway por defecto
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 
 // Authentication middleware - IMPORTANTE: En el orden correcto
