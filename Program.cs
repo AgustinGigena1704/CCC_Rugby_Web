@@ -5,6 +5,7 @@ using CCC_Rugby_Web.Security;
 using CCC_Rugby_Web.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using System.Reflection;
