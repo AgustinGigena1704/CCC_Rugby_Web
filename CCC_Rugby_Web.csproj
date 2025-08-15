@@ -13,6 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Dockerfile" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="wwwroot\images\ciudad_de_campana.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

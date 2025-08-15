@@ -22,9 +22,12 @@ if (builder.Environment.IsDevelopment())
     builder.Logging.SetMinimumLevel(LogLevel.Debug);
 }
 
-// Railway configuration - configurar puerto
+// Docker/Railway configuration - configurar puerto y URLs
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(port));
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -33,9 +36,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddMudServices();
 
 // Database configuration - usar variable de entorno en producción
-var connectionString = builder.Environment.IsProduction()
-    ? Environment.GetEnvironmentVariable("CONNECTION_STRING") ?? builder.Configuration.GetConnectionString("CCC_DbContext")
-    : builder.Configuration.GetConnectionString("CCC_DbContext");
+var connectionString = GetConnectionString(builder);
 
 builder.Services.AddDbContext<CCC_DbContext>(opt =>
 {
@@ -79,15 +80,8 @@ builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<AuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<AuthStateProvider>());
 
-// JWT Key from environment variable in production
-if (builder.Environment.IsProduction())
-{
-    var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
-    if (!string.IsNullOrEmpty(jwtKey))
-    {
-        builder.Configuration["JWT:Key"] = jwtKey;
-    }
-}
+// JWT Key configuration
+ConfigureJwtKey(builder);
 
 // Authentication configuration
 builder.Services.AddAuthentication("CustomScheme")
@@ -105,8 +99,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// No usar HTTPS redirect en Railway por defecto
-if (!app.Environment.IsDevelopment())
+// Solo usar HTTPS redirect en desarrollo local
+if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
@@ -123,4 +117,44 @@ app.MapControllers();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+// Log de información sobre el inicio
+app.Logger.LogInformation("Aplicación iniciada en el puerto {Port}", port);
+app.Logger.LogInformation("Entorno: {Environment}", app.Environment.EnvironmentName);
+
 app.Run();
+
+// Métodos auxiliares
+static string GetConnectionString(WebApplicationBuilder builder)
+{
+    // Prioridad: Variable de entorno -> appsettings
+    var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        connectionString = builder.Configuration.GetConnectionString("CCC_DbContext");
+    }
+
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        throw new InvalidOperationException("No se encontró una cadena de conexión válida. Configure CONNECTION_STRING como variable de entorno o en appsettings.json");
+    }
+
+    return connectionString;
+}
+
+static void ConfigureJwtKey(WebApplicationBuilder builder)
+{
+    var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+
+    if (string.IsNullOrEmpty(jwtKey))
+    {
+        jwtKey = builder.Configuration["JWT:Key"];
+    }
+
+    if (string.IsNullOrEmpty(jwtKey))
+    {
+        throw new InvalidOperationException("No se encontró una clave JWT válida. Configure JWT_KEY como variable de entorno o en appsettings.json");
+    }
+
+    builder.Configuration["JWT:Key"] = jwtKey;
+}
