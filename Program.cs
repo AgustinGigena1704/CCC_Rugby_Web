@@ -84,7 +84,7 @@ builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<AuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<AuthStateProvider>());
 
-if (!builder.Environment.IsProduction())
+if (builder.Environment.IsProduction())
 {
     ConfigureJwtKey(builder);
 }
