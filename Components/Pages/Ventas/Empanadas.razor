@@ -1,8 +1,10 @@
 ﻿@page "/Ventas/Empanadas"
+@layout MainLayout
 @attribute [Authorize]
+@inject HttpClient httpClient
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Net.Http.Headers;
-@inject HttpClient httpClient
+
 
 <CustomView Roles="empanadas">
     <MudPaper Width="90%" Height="95%">

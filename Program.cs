@@ -23,28 +23,27 @@ if (builder.Environment.IsDevelopment())
     builder.Logging.SetMinimumLevel(LogLevel.Debug);
 }
 
-// Docker/Railway configuration - configurar puerto correctamente
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-
-// Configurar Kestrel para escuchar en todas las interfaces
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+if (builder.Environment.IsProduction())
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 
 // Configurar Data Protection para contenedores
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/tmp/dataprotection-keys"))
     .SetApplicationName("CCC_Rugby_Web");
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
 
-// Database configuration - usar variable de entorno en producción
-var connectionString = GetConnectionString(builder);
 
 builder.Services.AddDbContext<CCC_DbContext>(opt =>
 {
+    var connectionString = (builder.Environment.IsDevelopment()) ? builder.Configuration.GetConnectionString("CCC_DbContext") :
+                       GetConnectionString(builder);
     opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 
@@ -85,8 +84,11 @@ builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<AuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<AuthStateProvider>());
 
-// JWT Key configuration
-ConfigureJwtKey(builder);
+if (!builder.Environment.IsProduction())
+{
+    ConfigureJwtKey(builder);
+}
+
 
 // Authentication configuration
 builder.Services.AddAuthentication("CustomScheme")
@@ -121,10 +123,6 @@ app.UseAntiforgery();
 app.MapControllers();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-
-// Log de información sobre el inicio
-app.Logger.LogInformation("Aplicación iniciada en el puerto {Port}", port);
-app.Logger.LogInformation("Entorno: {Environment}", app.Environment.EnvironmentName);
 
 app.Run();
 

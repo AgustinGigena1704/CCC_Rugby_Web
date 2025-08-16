@@ -51,13 +51,13 @@ namespace CCC_Rugby_Web.Models.Entityes
         [Required]
         [Column("updated_at", Order = 995)]
         [DefaultValue(null)]
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; } = null;
 
         [Required]
         [Column("updated_by", Order = 996)]
         [DefaultValue(null)]
-        public int? UpdatedBy { get; set; }
-        public Usuario? UpdatedByUsuario { get; set; }
+        public int? UpdatedBy { get; set; } = null;
+        public Usuario? UpdatedByUsuario { get; set; } = null;
 
         [Column("deleted_at", Order = 997)]
         [DefaultValue(null)]
