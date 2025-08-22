@@ -9,25 +9,28 @@
 <CustomView Roles="pedidos">
     <MudPaper Width="95%" MinWidth="70%" Height="20%" MaxHeight="20%">
         <MudText>Listado de Pedidos</MudText><br />
-        <MudContainer Class="d-flex flex-row justify-center align-center">
-            <MudSelect Variant="Variant.Filled" FitContent="true" Disabled="@loading" T="TipoArticuloDTO" @bind-Value="tipoSeleccionado" Label="Listado" Style="min-width:200px" Class="ma-2">
-                <MudSelectItem T="TipoArticuloDTO" Value="@tipoDefault">@tipoDefault.Nombre</MudSelectItem>
-                @foreach (TipoArticuloDTO tipo in tipoArticulos)
-                {
-                    <MudSelectItem T="TipoArticuloDTO" Value="@tipo">@tipo.Nombre</MudSelectItem>
-                }
-            </MudSelect>
-            &emsp;
-            <MudDatePicker Label="Fecha Inicio" Variant="Variant.Filled" Disabled="@loading" @bind-Date="inicio"/>
-            &emsp;
+        <MudGrid Spacing="10" Justify="Justify.Center" AlignItems="Center">
+            <MudItem xs="12" sm="6" md="3">
+                <MudSelect Variant="Variant.Filled" FitContent="true" Disabled="@loading" T="TipoArticuloDTO" @bind-Value="tipoSeleccionado" Label="Listado" Style="min-width:200px" Class="ma-2">
+                    <MudSelectItem T="TipoArticuloDTO" Value="@tipoDefault">@tipoDefault.Nombre</MudSelectItem>
+                    @foreach (TipoArticuloDTO tipo in tipoArticulos)
+                    {
+                        <MudSelectItem T="TipoArticuloDTO" Value="@tipo">@tipo.Nombre</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="2">
+                <MudDatePicker Label="Fecha Inicio" Variant="Variant.Filled" Disabled="@loading" @bind-Date="inicio" />
+            </MudItem>
+            <MudItem xs="12" sm="6" md="2">
             <MudDatePicker Label="Fecha Fin" Variant="Variant.Filled"  Disabled="@loading" @bind-Date="fin"/>
-            &emsp;
+            </MudItem>
+            <MudItem xs="12" sm="6" md="5" Class="d-flex flex-row justify-center justify-md-start gap-2">
             <MudButton Variant="Variant.Filled" Disabled="@loading">Filtros</MudButton>
-            &emsp;
             <MudIconButton Variant="Variant.Filled" OnClick="ReloadTable" Icon="@Icons.Material.Filled.Search" />
-            &emsp;
             <MudIconButton Disabled="@loading" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Add"/>
-        </MudContainer>
+            </MudItem>
+        </MudGrid>
     </MudPaper>
     <br/>
     <MudContainer  Style="width=95%">
@@ -62,13 +65,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        loading = true;
-        if (table != null)
-        {
-            await table.ReloadServerData();
-        }
         await LoadTipoArticulos();
-        loading = false;
     }
 
     private async Task ReloadTable()
@@ -98,8 +95,6 @@
             return new TableData<Pedido>() { TotalItems = 0, Items = new List<Pedido>() };
         }
 
-
-        
         var response = await httpClient.PostAsJsonAsync("api/Pedido/GetListadoPedidos", new RequestDTO(paginacionDTO, inicio, fin), token);
         if (response.IsSuccessStatusCode)
         {
@@ -117,6 +112,7 @@
 
     private async Task LoadTipoArticulos()
     {
+        loading = true;
         try
         {
             tipoSeleccionado = tipoDefault; // Inicializar con el valor por defecto
@@ -136,5 +132,6 @@
             // Manejar excepciones
             Console.WriteLine($"Excepción al cargar tipos de artículos: {ex.Message}");
         }
+        loading = false;
     }
 }
