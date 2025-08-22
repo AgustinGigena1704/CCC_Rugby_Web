@@ -9,7 +9,7 @@ namespace CCC_Rugby_Web.Models.Entityes
         [Required]
         [StringLength(100)]
         [Column("nombre", Order = 1)]
-        public required string Name { get; set; }
+        public required string Nombre { get; set; }
 
 
         [StringLength(250)]
@@ -18,6 +18,9 @@ namespace CCC_Rugby_Web.Models.Entityes
         [Column("codigo", Order = 3 )]
         [Required]
         public required string Codigo { get; set; }
+
+        public virtual ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
+        public virtual ICollection<Permiso> Permisos { get; set; } = new List<Permiso>();
 
     }
 }

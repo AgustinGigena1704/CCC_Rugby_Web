@@ -42,7 +42,7 @@ namespace CCC_Rugby_Web.Security
 
         public async Task AuthenticateUser(Usuario _user)
         {
-            List<Rol>? roles = await usuarioRepository.GetRoles(_user.Id);
+            List<Rol>? roles = _user.Roles.ToList();
             var token = await authStateComponent.Auth(_user, roles);
 
             if (!string.IsNullOrEmpty(token))

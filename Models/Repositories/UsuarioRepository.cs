@@ -11,15 +11,14 @@ namespace CCC_Rugby_Web.Models.Repositories
     [Repository(typeof(Usuario))]
     public class UsuarioRepository : GenericRepository<Usuario>
     {
-        public UsuarioRepository(CCC_DbContext context) : base(context)
-        {
-        }
+        public UsuarioRepository(CCC_DbContext context, EntityManager entity) : base(context, entity) { }
 
         public async Task<Usuario?> GetById(int id)
         {
             return await context.Usuarios
                 .Include(u => u.Persona)
                 .Include(u => u.AvatarArchivo)
+                .Include(u => u.Roles)
                 .FirstOrDefaultAsync(u => u.Id == id && !u.BorradoLogico);
         }
 
@@ -44,6 +43,7 @@ namespace CCC_Rugby_Web.Models.Repositories
                     user = await context.Usuarios
                         .Include(u => u.Persona)
                         .Include(u => u.AvatarArchivo)
+                        .Include(u => u.Roles)
                         .FirstOrDefaultAsync(u => u.Email == username && !u.BorradoLogico);
                 }
                 else
@@ -51,6 +51,7 @@ namespace CCC_Rugby_Web.Models.Repositories
                     user = await context.Usuarios
                         .Include(u => u.Persona)
                         .Include(u => u.AvatarArchivo)
+                        .Include(u => u.Roles)
                         .FirstOrDefaultAsync(u => u.Username == username && !u.BorradoLogico);
                 }
 
@@ -106,99 +107,7 @@ namespace CCC_Rugby_Web.Models.Repositories
             return null;
         }
 
-        public async Task<List<Rol>> GetRoles(int userId)
-        {
-            var roles = await context.UsuarioRoles
-                .Where(ur => ur.UsuarioId == userId)
-                .Include(ur => ur.Role)
-                .Select(ur => ur.Role)
-                .ToListAsync();
-            return roles;
-        }
-
-        public async Task<MenuDTO> GetMenuDtoByCodigo(string codigo, int userId)
-        {
-            var menu = await context.Menus
-                .FirstOrDefaultAsync(m => m.Codigo == codigo && !m.BorradoLogico);
-            var r = new MenuDTO()
-            {
-                Nombre = menu?.Nombre ?? "Menu Principal",
-                Descripcion = menu?.Descripcion
-            };
-
-            if (menu == null)
-                return r;
-
-            var roles = await GetRoles(userId);
-            if (roles == null || !roles.Any())
-                return r;
-
-            if (roles.Select(r => r.Codigo).Contains("admin"))
-            {
-                var AmenuGroups = await context.MenuGroups
-                    .Where(mg => !mg.BorradoLogico && mg.MenuId == menu.Id)
-                    .ToListAsync();
-
-                foreach (var grupo in AmenuGroups)
-                {
-                    var AmenuItems = await context.MenuItems
-                    .Where(mi => !mi.BorradoLogico && grupo.Id == mi.MenuGrupoId)
-                    .ToListAsync();
-
-                    List<MenuItemDTO> itemsDto = new List<MenuItemDTO>();
-                    foreach (var item in AmenuItems)
-                    {
-                        itemsDto.Add(new MenuItemDTO
-                        {
-                            Nombre = item.Nombre,
-                            Icono = item.Icono,
-                            Url = item.Url
-                        });
-                    }
-
-                    r.MenuGrupos.Add(new MenuGroupDTO
-                    {
-                        Nombre = grupo.Nombre,
-                        Icono = grupo.Icono,
-                        MenuItems = itemsDto
-                    });
-                }
-                return r;
-            }
-
-            var menuGroups = await context.MenuGroups
-                .Where(mg => !mg.BorradoLogico && mg.MenuId == menu.Id && roles.Select(r => r.Id).Contains(mg.RolId ?? 0))
-                .ToListAsync();
-
-            foreach (var grupo in menuGroups)
-            {
-                var menuItems = await context.MenuItems
-                .Where(mi => !mi.BorradoLogico && grupo.Id == mi.MenuGrupoId)
-                .ToListAsync();
-
-                List<MenuItemDTO> itemsDto = new List<MenuItemDTO>();
-                foreach (var item in menuItems)
-                {
-                    itemsDto.Add(new MenuItemDTO
-                    {
-                        Nombre = item.Nombre,
-                        Icono = item.Icono,
-                        Url = item.Url
-                    });
-                }
-
-                r.MenuGrupos.Add(new MenuGroupDTO
-                {
-                    Nombre = grupo.Nombre,
-                    Icono = grupo.Icono,
-                    MenuItems = itemsDto
-                });
-            }
-
-            return r;
-        }
-
-        // Método para crear usuario con contraseña hasheada
+        
         public async Task<Usuario> CreateUserAsync(Usuario user, string plainPassword)
         {
             user.Password = BCrypt.Net.BCrypt.HashPassword(plainPassword, BCrypt.Net.BCrypt.GenerateSalt(12));
@@ -206,8 +115,6 @@ namespace CCC_Rugby_Web.Models.Repositories
             await context.SaveChangesAsync();
             return user;
         }
-
-        // Método para cambiar contraseña
         public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
         {
             var user = await GetById(userId);

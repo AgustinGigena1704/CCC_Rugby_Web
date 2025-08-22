@@ -107,7 +107,7 @@ namespace CCC_Rugby_Web.Migrations
                     b.ToTable("archivo");
                 });
 
-            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Menu", b =>
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Articulo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -116,6 +116,10 @@ namespace CCC_Rugby_Web.Migrations
                         .HasColumnOrder(0);
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ArchivoImagenId")
+                        .HasColumnType("int")
+                        .HasColumnName("archivo_imagen_id");
 
                     b.Property<bool>("BorradoLogico")
                         .ValueGeneratedOnAdd()
@@ -157,6 +161,95 @@ namespace CCC_Rugby_Web.Migrations
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("nombre");
+
+                    b.Property<decimal>("Precio")
+                        .HasColumnType("decimal(65,30)")
+                        .HasColumnName("precio");
+
+                    b.Property<int>("TipoArticuloId")
+                        .HasColumnType("int")
+                        .HasColumnName("tipo_articulo_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .IsRequired()
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at")
+                        .HasColumnOrder(995);
+
+                    b.Property<int?>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("int")
+                        .HasColumnName("updated_by")
+                        .HasColumnOrder(996);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArchivoImagenId");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("DeletedBy");
+
+                    b.HasIndex("TipoArticuloId");
+
+                    b.HasIndex("UpdatedBy");
+
+                    b.ToTable("articulos");
+                });
+
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Menu", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id")
+                        .HasColumnOrder(0);
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("BorradoLogico")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("borrado_logico")
+                        .HasColumnOrder(999);
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("codigo")
+                        .HasColumnOrder(3);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at")
+                        .HasColumnOrder(993);
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by")
+                        .HasColumnOrder(994);
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deleted_at")
+                        .HasColumnOrder(997);
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("deleted_by")
+                        .HasColumnOrder(998);
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("longtext")
+                        .HasColumnName("descripcion")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("nombre")
+                        .HasColumnOrder(1);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .IsRequired()
@@ -377,6 +470,166 @@ namespace CCC_Rugby_Web.Migrations
                     b.ToTable("menu_item");
                 });
 
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Pedido", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id")
+                        .HasColumnOrder(0);
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("BorradoLogico")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("borrado_logico")
+                        .HasColumnOrder(999);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at")
+                        .HasColumnOrder(993);
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by")
+                        .HasColumnOrder(994);
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deleted_at")
+                        .HasColumnOrder(997);
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("deleted_by")
+                        .HasColumnOrder(998);
+
+                    b.Property<string>("DireccionEntrega")
+                        .HasColumnType("longtext")
+                        .HasColumnName("direccion_entrega");
+
+                    b.Property<int>("EstadoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("fecha");
+
+                    b.Property<string>("NombreComprador")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("nombre_comprador");
+
+                    b.Property<int?>("TipoPagoId")
+                        .HasColumnType("int")
+                        .HasColumnName("tipo_pago_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .IsRequired()
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at")
+                        .HasColumnOrder(995);
+
+                    b.Property<int?>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("int")
+                        .HasColumnName("updated_by")
+                        .HasColumnOrder(996);
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("DeletedBy");
+
+                    b.HasIndex("EstadoId");
+
+                    b.HasIndex("TipoPagoId");
+
+                    b.HasIndex("UpdatedBy");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("pedido");
+                });
+
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.PedidoEstado", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id")
+                        .HasColumnOrder(0);
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("BorradoLogico")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("borrado_logico")
+                        .HasColumnOrder(999);
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("codigo");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at")
+                        .HasColumnOrder(993);
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by")
+                        .HasColumnOrder(994);
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deleted_at")
+                        .HasColumnOrder(997);
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("deleted_by")
+                        .HasColumnOrder(998);
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("nombre");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .IsRequired()
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at")
+                        .HasColumnOrder(995);
+
+                    b.Property<int?>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("int")
+                        .HasColumnName("updated_by")
+                        .HasColumnOrder(996);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("DeletedBy");
+
+                    b.HasIndex("UpdatedBy");
+
+                    b.ToTable("pedido_estado");
+                });
+
             modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Permiso", b =>
                 {
                     b.Property<int>("Id")
@@ -397,7 +650,8 @@ namespace CCC_Rugby_Web.Migrations
                     b.Property<string>("Codigo")
                         .IsRequired()
                         .HasColumnType("varchar(255)")
-                        .HasColumnName("codigo");
+                        .HasColumnName("codigo")
+                        .HasColumnOrder(3);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
@@ -421,12 +675,14 @@ namespace CCC_Rugby_Web.Migrations
 
                     b.Property<string>("Descripcion")
                         .HasColumnType("longtext")
-                        .HasColumnName("descripcion");
+                        .HasColumnName("descripcion")
+                        .HasColumnOrder(2);
 
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("nombre");
+                        .HasColumnName("nombre")
+                        .HasColumnOrder(1);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .IsRequired()
@@ -467,7 +723,8 @@ namespace CCC_Rugby_Web.Migrations
                     b.Property<string>("Apellidos")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("apellidos");
+                        .HasColumnName("apellidos")
+                        .HasColumnOrder(4);
 
                     b.Property<bool>("BorradoLogico")
                         .ValueGeneratedOnAdd()
@@ -499,26 +756,31 @@ namespace CCC_Rugby_Web.Migrations
                     b.Property<string>("Documento")
                         .IsRequired()
                         .HasColumnType("varchar(255)")
-                        .HasColumnName("documento");
+                        .HasColumnName("documento")
+                        .HasColumnOrder(2);
 
                     b.Property<DateOnly>("FechaNacimiento")
                         .HasColumnType("date")
-                        .HasColumnName("fecha_nacimiento");
+                        .HasColumnName("fecha_nacimiento")
+                        .HasColumnOrder(5);
 
                     b.Property<string>("Genero")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("genero");
+                        .HasColumnName("genero")
+                        .HasColumnOrder(6);
 
                     b.Property<string>("Nombres")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("nombres");
+                        .HasColumnName("nombres")
+                        .HasColumnOrder(3);
 
                     b.Property<string>("TipoDocumento")
                         .IsRequired()
                         .HasColumnType("varchar(255)")
-                        .HasColumnName("tipo_documento");
+                        .HasColumnName("tipo_documento")
+                        .HasColumnOrder(1);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .IsRequired()
@@ -546,24 +808,7 @@ namespace CCC_Rugby_Web.Migrations
                     b.ToTable("persona");
                 });
 
-            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.RolPermiso", b =>
-                {
-                    b.Property<int>("RolId")
-                        .HasColumnType("int")
-                        .HasColumnName("rol_id");
-
-                    b.Property<int>("PermisoId")
-                        .HasColumnType("int")
-                        .HasColumnName("permiso_id");
-
-                    b.HasKey("RolId");
-
-                    b.HasIndex("PermisoId");
-
-                    b.ToTable("rol_permiso");
-                });
-
-            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Role", b =>
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Rol", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -640,6 +885,154 @@ namespace CCC_Rugby_Web.Migrations
                     b.HasIndex("UpdatedBy");
 
                     b.ToTable("rol");
+                });
+
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.TipoArticulo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id")
+                        .HasColumnOrder(0);
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("BorradoLogico")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("borrado_logico")
+                        .HasColumnOrder(999);
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("codigo");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at")
+                        .HasColumnOrder(993);
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by")
+                        .HasColumnOrder(994);
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deleted_at")
+                        .HasColumnOrder(997);
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("deleted_by")
+                        .HasColumnOrder(998);
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("longtext")
+                        .HasColumnName("descripcion");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("nombre");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .IsRequired()
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at")
+                        .HasColumnOrder(995);
+
+                    b.Property<int?>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("int")
+                        .HasColumnName("updated_by")
+                        .HasColumnOrder(996);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("DeletedBy");
+
+                    b.HasIndex("UpdatedBy");
+
+                    b.ToTable("tipo_articulo");
+                });
+
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.TipoPago", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id")
+                        .HasColumnOrder(0);
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("BorradoLogico")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("borrado_logico")
+                        .HasColumnOrder(999);
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("codigo");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at")
+                        .HasColumnOrder(993);
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by")
+                        .HasColumnOrder(994);
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deleted_at")
+                        .HasColumnOrder(997);
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("deleted_by")
+                        .HasColumnOrder(998);
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("longtext")
+                        .HasColumnName("descripcion");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("nombre");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .IsRequired()
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at")
+                        .HasColumnOrder(995);
+
+                    b.Property<int?>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("int")
+                        .HasColumnName("updated_by")
+                        .HasColumnOrder(996);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("DeletedBy");
+
+                    b.HasIndex("UpdatedBy");
+
+                    b.ToTable("tipo_pago");
                 });
 
             modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Usuario", b =>
@@ -741,19 +1134,49 @@ namespace CCC_Rugby_Web.Migrations
                     b.ToTable("usuario");
                 });
 
-            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.UsuarioRol", b =>
+            modelBuilder.Entity("pedido_articulos", b =>
                 {
-                    b.Property<int>("UsuarioId")
+                    b.Property<int>("ArticulosId")
                         .HasColumnType("int");
 
-                    b.Property<int>("RoleId")
+                    b.Property<int>("PedidosId")
                         .HasColumnType("int");
 
-                    b.HasKey("UsuarioId");
+                    b.HasKey("ArticulosId", "PedidosId");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("PedidosId");
 
-                    b.ToTable("usuario_rol");
+                    b.ToTable("pedido_articulos");
+                });
+
+            modelBuilder.Entity("rol_permisos", b =>
+                {
+                    b.Property<int>("PermisosId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RolesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PermisosId", "RolesId");
+
+                    b.HasIndex("RolesId");
+
+                    b.ToTable("rol_permisos");
+                });
+
+            modelBuilder.Entity("usuario_roles", b =>
+                {
+                    b.Property<int>("RolesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsuariosId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RolesId", "UsuariosId");
+
+                    b.HasIndex("UsuariosId");
+
+                    b.ToTable("usuario_roles");
                 });
 
             modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Archivo", b =>
@@ -778,6 +1201,46 @@ namespace CCC_Rugby_Web.Migrations
                     b.Navigation("CreatedByUsuario");
 
                     b.Navigation("DeletedByUsuario");
+
+                    b.Navigation("UpdatedByUsuario");
+                });
+
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Articulo", b =>
+                {
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Archivo", "ArchivoImagen")
+                        .WithMany()
+                        .HasForeignKey("ArchivoImagenId");
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "CreatedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "DeletedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("DeletedBy")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.TipoArticulo", "TipoArticulo")
+                        .WithMany()
+                        .HasForeignKey("TipoArticuloId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "UpdatedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("UpdatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ArchivoImagen");
+
+                    b.Navigation("CreatedByUsuario");
+
+                    b.Navigation("DeletedByUsuario");
+
+                    b.Navigation("TipoArticulo");
 
                     b.Navigation("UpdatedByUsuario");
                 });
@@ -827,7 +1290,7 @@ namespace CCC_Rugby_Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Role", "Rol")
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Rol", "Rol")
                         .WithMany()
                         .HasForeignKey("RolId");
 
@@ -878,6 +1341,80 @@ namespace CCC_Rugby_Web.Migrations
                     b.Navigation("DeletedByUsuario");
 
                     b.Navigation("MenuGrupo");
+
+                    b.Navigation("UpdatedByUsuario");
+                });
+
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Pedido", b =>
+                {
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "CreatedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "DeletedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("DeletedBy")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.PedidoEstado", "Estado")
+                        .WithMany()
+                        .HasForeignKey("EstadoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.TipoPago", "TipoPago")
+                        .WithMany()
+                        .HasForeignKey("TipoPagoId");
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "UpdatedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("UpdatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUsuario");
+
+                    b.Navigation("DeletedByUsuario");
+
+                    b.Navigation("Estado");
+
+                    b.Navigation("TipoPago");
+
+                    b.Navigation("UpdatedByUsuario");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.PedidoEstado", b =>
+                {
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "CreatedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "DeletedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("DeletedBy")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "UpdatedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("UpdatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUsuario");
+
+                    b.Navigation("DeletedByUsuario");
 
                     b.Navigation("UpdatedByUsuario");
                 });
@@ -934,26 +1471,59 @@ namespace CCC_Rugby_Web.Migrations
                     b.Navigation("UpdatedByUsuario");
                 });
 
-            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.RolPermiso", b =>
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Rol", b =>
                 {
-                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Permiso", "Permiso")
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "CreatedByUsuario")
                         .WithMany()
-                        .HasForeignKey("PermisoId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Role", "Rol")
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "DeletedByUsuario")
                         .WithMany()
-                        .HasForeignKey("RolId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("DeletedBy")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "UpdatedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("UpdatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Permiso");
+                    b.Navigation("CreatedByUsuario");
 
-                    b.Navigation("Rol");
+                    b.Navigation("DeletedByUsuario");
+
+                    b.Navigation("UpdatedByUsuario");
                 });
 
-            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.Role", b =>
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.TipoArticulo", b =>
+                {
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "CreatedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "DeletedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("DeletedBy")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "UpdatedByUsuario")
+                        .WithMany()
+                        .HasForeignKey("UpdatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUsuario");
+
+                    b.Navigation("DeletedByUsuario");
+
+                    b.Navigation("UpdatedByUsuario");
+                });
+
+            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.TipoPago", b =>
                 {
                     b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "CreatedByUsuario")
                         .WithMany()
@@ -1009,23 +1579,49 @@ namespace CCC_Rugby_Web.Migrations
                     b.Navigation("UpdatedByUsuario");
                 });
 
-            modelBuilder.Entity("CCC_Rugby_Web.Models.Entityes.UsuarioRol", b =>
+            modelBuilder.Entity("pedido_articulos", b =>
                 {
-                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Role", "Role")
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Articulo", null)
                         .WithMany()
-                        .HasForeignKey("RoleId")
+                        .HasForeignKey("ArticulosId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", "Usuario")
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Pedido", null)
                         .WithMany()
-                        .HasForeignKey("UsuarioId")
+                        .HasForeignKey("PedidosId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("rol_permisos", b =>
+                {
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Permiso", null)
+                        .WithMany()
+                        .HasForeignKey("PermisosId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Role");
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Rol", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.Navigation("Usuario");
+            modelBuilder.Entity("usuario_roles", b =>
+                {
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Rol", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CCC_Rugby_Web.Models.Entityes.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuariosId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

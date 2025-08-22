@@ -23,7 +23,8 @@
                            Edge="Edge.Start"
                            OnClick="@ToggleDrawer" />
             <MudSpacer />
-                <MudText Class="mr-4">@context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value.ToString()</MudText>
+            <MudText Class="mr-4">@context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value.ToString()</MudText>
+            <MudText Class="mr-4">@context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value.ToString()</MudText>
             <MudMenu 
                 ActivationEvent="@MouseEvent.LeftClick" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
                 <ActivatorContent>
@@ -108,7 +109,8 @@
             </MudNavMenu>
         </MudDrawer>
         <MudMainContent>
-            <MudContainer Class="d-flex justify-center align-center" Style="height: calc(100vh - 64px);">
+            <MudContainer Class="d-flex flex-column justify-center align-center">
+                <br />
                 @Body
             </MudContainer>
         </MudMainContent>
@@ -127,9 +129,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadUserAvatar();
+        var authState = await auth.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+        if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+        {
+            currentUserId = userId;
+        }
         await LoadMenu();
-        StateHasChanged();
+        await LoadUserAvatar();
     }
 
     private async Task LoadMenu()
@@ -146,10 +154,8 @@
                 }
                 else
                 {
-                    // Manejo de error si es necesario
                     Console.WriteLine("Error al cargar el menú");
                 }
-                await Task.Delay(500); // Simulación de carga
             }
         }
         catch (Exception ex)
@@ -171,17 +177,11 @@
         {
             isLoadingAvatar = true;
             StateHasChanged();
-
-            // Obtener el userId del usuario autenticado
-            var authState = await auth.GetAuthenticationStateAsync();
-            var userIdClaim = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            
-            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+            if(currentUserId != null)
             {
-                currentUserId = userId;
                 
                 // Llamar al endpoint para obtener el avatar
-                var response = await httpClient.GetAsync($"api/Usuario/GetAvatar/{userId}");
+                var response = await httpClient.GetAsync($"api/Usuario/GetAvatar/{currentUserId}");
                 
                 if (response.IsSuccessStatusCode)
                 {

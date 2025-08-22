@@ -10,20 +10,25 @@ namespace CCC_Rugby_Web.Models
         {
         }
         public DbSet<Usuario> Usuarios { get; set; }
-        public DbSet<UsuarioRol> UsuarioRoles { get; set; }
         public DbSet<Rol> Roles { get; set; }
         public DbSet<Persona> Personas { get; set; }
         public DbSet<Archivo> Archivos { get; set; }
         public DbSet<Permiso> Permisos { get; set; }
-        public DbSet<RolPermiso> RolPermisos { get; set; }
         public DbSet<Menu> Menus { get; set; }
         public DbSet<MenuGroup> MenuGroups { get; set; }
         public DbSet<MenuItem> MenuItems { get; set; }
+        public DbSet<Articulo> Articulos { get; set; }
+        public DbSet<TipoArticulo> TipoArticulos { get; set; }
+        public DbSet<Pedido> Pedidos { get; set; }
+        public DbSet<PedidoEstado> PedidoEstados { get; set; }
+        public DbSet<TipoPago> TipoPagos { get; set; }
 
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes()
+            var genericEntities = modelBuilder.Model.GetEntityTypes().ToList();
+            foreach (var entityType in genericEntities
                          .Where(t => typeof(IGenericEntityWithCreated).IsAssignableFrom(t.ClrType)))
             {
                 var entity = modelBuilder.Entity(entityType.ClrType);
@@ -102,33 +107,25 @@ namespace CCC_Rugby_Web.Models
                 .HasOne<Usuario>(u => u.UpdatedByUsuario)
                 .WithMany()
                 .HasForeignKey(u => u.UpdatedBy);
-            
+
+            modelBuilder.Entity<Usuario>()
+                .HasMany(u => u.Roles)
+                .WithMany(r => r.Usuarios)
+                .UsingEntity("usuario_roles");
+
+
 
             modelBuilder.Entity<Persona>()
                 .HasIndex(p => new { p.TipoDocumento, p.Documento })
                 .IsUnique();
 
-            modelBuilder.Entity<UsuarioRol>()
-                .HasOne<Usuario>(ur => ur.Usuario)
-                .WithMany()
-                .HasForeignKey(ur => ur.UsuarioId);
-            modelBuilder.Entity<UsuarioRol>()
-                .HasOne<Rol>(ur => ur.Role)
-                .WithMany()
-                .HasForeignKey(ur => ur.RoleId);
-
             modelBuilder.Entity<Permiso>()
                 .HasIndex(p => p.Codigo)
                 .IsUnique();
-
-            modelBuilder.Entity<RolPermiso>()
-                .HasOne<Rol>(rp => rp.Rol)
-                .WithMany()
-                .HasForeignKey(rp => rp.RolId);
-            modelBuilder.Entity<RolPermiso>()
-                .HasOne<Permiso>(rp => rp.Permiso)
-                .WithMany()
-                .HasForeignKey(rp => rp.PermisoId);
+            modelBuilder.Entity<Rol>()
+                .HasMany(r => r.Permisos)
+                .WithMany(p => p.Roles)
+                .UsingEntity("rol_permisos");
 
             modelBuilder.Entity<MenuGroup>()
                 .HasOne<Rol>(mg => mg.Rol)
@@ -151,6 +148,11 @@ namespace CCC_Rugby_Web.Models
             modelBuilder.Entity<MenuItem>()
                 .HasIndex(mi => mi.Codigo)
                 .IsUnique();
+
+            modelBuilder.Entity<Pedido>()
+                .HasMany(p => p.Articulos)
+                .WithMany(a => a.Pedidos)
+                .UsingEntity("pedido_articulos");
 
             base.OnModelCreating(modelBuilder);
         }

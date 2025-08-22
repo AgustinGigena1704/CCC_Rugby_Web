@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace CCC_Rugby_Web.Models.Entityes
 {
     [Table("pedido_estado")]
-    public class PedidoEstado
+    public class PedidoEstado : GenericEntity
     {
         [Column("nombre")]
         [Required]

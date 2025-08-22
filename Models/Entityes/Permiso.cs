@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CCC_Rugby_Web.Models.Entityes;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CCC_Rugby_Web.Models.Entityes
@@ -14,5 +15,7 @@ namespace CCC_Rugby_Web.Models.Entityes
         [Column("codigo", Order = 3)]
         [Required]
         public required string Codigo { get; set; }
+
+        public virtual ICollection<Rol> Roles { get; set; } = new List<Rol>();
     }
 }

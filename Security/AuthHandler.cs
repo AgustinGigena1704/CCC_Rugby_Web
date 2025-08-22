@@ -15,12 +15,12 @@ namespace CCC_Rugby_Web.Security
             
             this.authStateComponent = authStateComponent;
         }
-        protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             string? token = Context.Request.Cookies[TOKEN_COOKIE_NAME];
             if (string.IsNullOrEmpty(token))
             {
-                return AuthenticateResult.Fail("Authentication Failed");
+                return Task.FromResult(AuthenticateResult.Fail("Error al obtener el token desde la cookie."));
             }
                 
 
@@ -29,10 +29,10 @@ namespace CCC_Rugby_Web.Security
             {
                 var principal = new ClaimsPrincipal(new ClaimsIdentity(userClaims, "JWT"));
                 var ticket = new AuthenticationTicket(principal, Scheme.Name);
-                return AuthenticateResult.Success(ticket);
+                return Task.FromResult(AuthenticateResult.Success(ticket));
             }
 
-            return AuthenticateResult.Fail("Authentication Failed");
+            return Task.FromResult(AuthenticateResult.Fail("Ocurrio un error al verificar el usuario."));
         }
 
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)

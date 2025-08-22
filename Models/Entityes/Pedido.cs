@@ -24,5 +24,7 @@ namespace CCC_Rugby_Web.Models.Entityes
         public required string NombreComprador { get; set; }
         [Column("direccion_entrega")]
         public string? DireccionEntrega { get; set; } = null;
+
+        public virtual ICollection<Articulo> Articulos { get; set; } = new List<Articulo>();
     }
 }

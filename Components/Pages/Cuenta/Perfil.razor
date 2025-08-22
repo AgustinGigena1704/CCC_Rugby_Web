@@ -20,6 +20,10 @@
                        </ActivatorContent>
         </MudFileUpload>
         <MudText>@error</MudText>
+        @foreach(string rol in roles)
+        {
+            <MudText>@rol</MudText>
+        }
     </MudContainer>
 </MudPaper>
 
@@ -28,8 +32,8 @@
 @code {
     private string? avatarUrl;
     private string error = "";
-    private bool isLoadingAvatar = false;
     private int currentUserId;
+    private List<string> roles = new List<string>();
 
     private async Task UploadAvatar(IBrowserFile file)
     {
@@ -39,7 +43,7 @@
             using var fileContent = new StreamContent(file.OpenReadStream(maxAllowedSize: 5242880));
             fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
             content.Add(fileContent, "file", file.Name);
-            var response = await httpClient.PostAsync("/api/Usuario/UpdateAvatar/1", content);
+            var response = await httpClient.PostAsync($"/api/Usuario/UpdateAvatar/{currentUserId}", content);
             if (response.IsSuccessStatusCode)
             {
                 NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
@@ -55,19 +59,21 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadUserAvatar();
+        var authState = await auth.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        roles = authState.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value.ToString()).ToList();
     }
 
     private async Task LoadUserAvatar()
     {
         try
         {
-            isLoadingAvatar = true;
             StateHasChanged();
 
 
             var authState = await auth.GetAuthenticationStateAsync();
             var userIdClaim = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-
+            roles = authState.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value.ToString()).ToList();
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
             {
                 currentUserId = userId;
@@ -91,7 +97,6 @@
         }
         finally
         {
-            isLoadingAvatar = false;
             StateHasChanged();
         }
     }
