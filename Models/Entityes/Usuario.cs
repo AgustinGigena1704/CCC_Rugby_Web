@@ -45,5 +45,7 @@ namespace CCC_Rugby_Web.Models.Entityes
         [Column("bloqueado", Order = 8)]
         [DefaultValue(false)]
         public bool Bloqueado { get; set; } = false;
+
+        public virtual ICollection<Rol> Roles { get; set; } = new List<Rol>();
     }
 }

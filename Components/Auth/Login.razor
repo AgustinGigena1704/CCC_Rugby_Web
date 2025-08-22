@@ -1,5 +1,4 @@
 ﻿@page "/Auth/Login"
-@using CCC_Rugby_Web.Models.Entityes
 @layout LoginLayout
 @inject CookieService cookieService
 @inject AuthService authService
@@ -15,14 +14,16 @@
             <MudImage Style="max-width:80%;" Class="my-4" Src="images\ciudad_de_campana.png"></MudImage>
         </div>
         <MudForm Model="@loginDTO" @ref="form" Class="mt-4">
-            <MudTextField @bind-Value="loginDTO.Username" Label="Username" Required="true"/>
-            <br />
-            <MudTextField @bind-Value="loginDTO.Password" Label="Password" InputType="InputType.Password" Required="true" />
-            <br />
-            <MudButton  Variant="Variant.Filled" OnClick="@HandleLogin" Color="Color.Primary">
-                Login
-            </MudButton>
-            <br />
+            <MudFocusTrap Disabled="true" DefaultFocus="DefaultFocus.FirstChild">
+                <MudTextField @bind-Value="loginDTO.Username" For="@(() => loginDTO.Username)" Label="Correo / Usuario" />
+                <br />
+                <MudTextField @bind-Value="loginDTO.Password" For="@(() => loginDTO.Password)" Label="Contraseña" InputType="@passwordInput" OnAdornmentClick="TogglePasswordVisibility" Adornment="Adornment.End" AdornmentIcon="@passwordIcon" />
+                <br />
+                <MudButton Variant="Variant.Filled" OnClick="@HandleLogin" Color="Color.Primary">
+                    Login
+                </MudButton>
+                <br />
+            </MudFocusTrap>
         </MudForm>
         @if (loading)
         {
@@ -42,8 +43,24 @@
     private LoginDTO loginDTO = new LoginDTO();
     private string? info;
     private bool loading = false;
+    private InputType passwordInput = InputType.Password;
+    private string passwordIcon = Icons.Material.Filled.VisibilityOff;
     [Parameter][SupplyParameterFromQuery] public string? ReturnUrl { get; set; }
 
+    void TogglePasswordVisibility()
+    {
+        if (passwordInput == InputType.Password)
+        {
+            passwordInput = InputType.Text;
+            passwordIcon = Icons.Material.Filled.Visibility;
+        }
+        else
+        {
+            passwordInput = InputType.Password;
+            passwordIcon = Icons.Material.Filled.VisibilityOff;
+        }
+        StateHasChanged();
+    }
 
     private async Task HandleLogin()
     {

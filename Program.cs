@@ -1,4 +1,5 @@
 using CCC_Rugby_Web.Components;
+using CCC_Rugby_Web.Components.Utils;
 using CCC_Rugby_Web.Models;
 using CCC_Rugby_Web.Models.Repositories;
 using CCC_Rugby_Web.Security;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor;
 using MudBlazor.Services;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -38,6 +40,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
+MudGlobal.UnhandledExceptionHandler = (exception) => Console.WriteLine(exception);
 
 
 builder.Services.AddDbContext<CCC_DbContext>(opt =>
@@ -48,6 +51,7 @@ builder.Services.AddDbContext<CCC_DbContext>(opt =>
 });
 
 builder.Services.AddScoped<EntityManager>();
+builder.Services.AddScoped<IUtilities, Utilities>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -120,9 +124,11 @@ app.UseAuthorization();
 
 app.UseAntiforgery();
 
-app.MapControllers();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapControllers();
 
 app.Run();
 

@@ -92,7 +92,7 @@ namespace CCC_Rugby_Web.Controllers
         [HttpGet("GetMainMenu/{menuCodigo}/{id}")]
         public async Task<IActionResult> GetMainMenu(string menuCodigo, int id)
         {
-            MenuDTO menu = await entityManager.GetRepository<UsuarioRepository>().GetMenuDtoByCodigo(menuCodigo, id);
+            MenuDTO menu = await entityManager.GetRepository<MenuRepository>().GetMenuDtoByCodigo(menuCodigo, id);
             if (menu.MenuGrupos.Count <= 0)
             {
                 return NotFound("No se encontraron los item del menu");

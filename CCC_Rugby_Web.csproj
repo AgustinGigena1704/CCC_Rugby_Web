@@ -13,6 +13,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\Pages\Admin\**" />
+    <Content Remove="Components\Pages\Admin\**" />
+    <EmbeddedResource Remove="Components\Pages\Admin\**" />
+    <None Remove="Components\Pages\Admin\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="wwwroot\images\ciudad_de_campana.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -30,10 +37,6 @@
     <PackageReference Include="MudBlazor" Version="8.10.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\Pages\Admin\" />
   </ItemGroup>
 
 </Project>

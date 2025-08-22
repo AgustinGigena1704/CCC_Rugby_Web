@@ -1,0 +1,33 @@
+﻿@inject NavigationManager navManager
+
+<MudBreadcrumbs Items="@items">
+
+</MudBreadcrumbs>
+
+@code {
+    private List<BreadcrumbItem> items = new List<BreadcrumbItem>();
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        
+    }
+
+    private void UpdateBreadcrumbs()
+    {
+        items.Clear();
+        var segments = navManager.Uri.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+        
+        foreach (var segment in segments)
+        {
+            if (!string.IsNullOrWhiteSpace(segment))
+            {
+            }
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        navManager.LocationChanged += OnLocationChanged;
+    }
+    
+}

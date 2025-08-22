@@ -1,4 +1,4 @@
-﻿@page "/Ventas/Empanadas"
+﻿@page "/Ventas/TipoArticulo"
 @layout MainLayout
 @attribute [Authorize]
 @inject HttpClient httpClient
@@ -9,7 +9,7 @@
 <CustomView Roles="empanadas">
     <MudPaper Width="90%" Height="95%">
         <MudToolBar Dense="true" Class="pa-0">
-            <MudText Typo="Typo.h5" Class="px-2">Empanadas</MudText>
+            <MudText Typo="Typo.h5" Class="px-2">Listado de Ventas</MudText>
             <MudSpacer />
             <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">Nueva Venta</MudButton>    
         </MudToolBar>

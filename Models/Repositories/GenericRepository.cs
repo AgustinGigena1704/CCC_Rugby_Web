@@ -1,4 +1,5 @@
 ﻿using CCC_Rugby_Web.Models.Entityes;
+using CCC_Rugby_Web.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace CCC_Rugby_Web.Models.Repositories
@@ -7,16 +8,20 @@ namespace CCC_Rugby_Web.Models.Repositories
     {
         protected readonly CCC_DbContext context;
         protected readonly DbSet<T> _dbSet;
+        protected readonly EntityManager entityManager;
 
-        public GenericRepository(CCC_DbContext context)
+        public GenericRepository(CCC_DbContext context, EntityManager entityManager)
         {
             this.context = context;
             _dbSet = context.Set<T>();
+            this.entityManager = entityManager;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsync()
         {
-            var entities = await _dbSet.ToListAsync();
+            var query = _dbSet.AsQueryable();
+            query = IncludeNavigationProperties(query);
+            var entities = await query.ToListAsync();
             var result = entities.Where(e =>
             {
                 var prop = typeof(T).GetProperty("BorradoLogico");
@@ -31,9 +36,11 @@ namespace CCC_Rugby_Web.Models.Repositories
 
         public async Task<T> GetByIdAsync(int id)
         {
-            var result = await _dbSet.FindAsync(id);
+            var result = _dbSet.AsQueryable();
+            result = IncludeNavigationProperties(result);
+            var user = await result.FirstOrDefaultAsync(e => e.Id == id);
 
-            return result?.BorradoLogico == false ? result : null;
+            return user?.BorradoLogico == false ? user : null;
         }
 
         public async Task CreateAsync(T entity, Usuario user_by)
@@ -66,5 +73,28 @@ namespace CCC_Rugby_Web.Models.Repositories
                 await context.SaveChangesAsync();
             }
         }
+
+        protected virtual IQueryable<T> IncludeNavigationProperties(IQueryable<T> query)
+        {
+            // Obtener el tipo de entidad
+            var entityType = context.Model.FindEntityType(typeof(T));
+            if (entityType == null) return query;
+
+            // Obtener todas las propiedades de navegación
+            var navigationProperties = entityType.GetNavigations()
+                .Where(n => !n.IsOnDependent) // Solo propiedades de navegación principales
+                .ToList();
+
+            // Incluir cada propiedad de navegación
+            foreach (var navigation in navigationProperties)
+            {
+                query = query.Include(navigation.Name);
+            }
+
+            return query;
+        }
     }
 }
+
+
+
