@@ -13,6 +13,7 @@
 @using MudBlazor
 @using MudBlazor.Services
 @using CCC_Rugby_Web.Services
+@using CCC_Rugby_Web.Utilities
 @using CCC_Rugby_Web.Models
 @using CCC_Rugby_Web.Models.Entityes
 @using CCC_Rugby_Web.DTOs
@@ -20,3 +21,6 @@
 @using CCC_Rugby_Web.Components.Layout
 @using CCC_Rugby_Web.Components.Utils
 @using static CCC_Rugby_Web.Services.Constants;
+@inject HttpClient HttpClient
+@inject IUtilities Utilities
+@inject ILoadingService LoadingService

@@ -52,6 +52,7 @@ builder.Services.AddDbContext<CCC_DbContext>(opt =>
 
 builder.Services.AddScoped<EntityManager>();
 builder.Services.AddScoped<IUtilities, Utilities>();
+builder.Services.AddSingleton<ILoadingService, LoadingService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

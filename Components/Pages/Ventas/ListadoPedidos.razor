@@ -2,8 +2,6 @@
 @using CCC_Rugby_Web.Utilities
 @layout MainLayout
 @attribute [Authorize]
-@inject HttpClient httpClient
-@inject IUtilities utilities
 
 
 
@@ -13,7 +11,7 @@
         <MudPaper Class="pa-4 mb-4" Style="flex-shrink: 0;">
             <MudGrid Spacing="5" Class="width:100%; justify-start justify-md-center" Style="align-items:center">
                 <MudItem xs="12" sm="6" md="3" Class="d-flex align-center">
-                    <MudSelect Variant="Variant.Filled" FitContent="true" Disabled="@loading" T="TipoArticuloDTO" @bind-Value="tipoSeleccionado" Label="Listado" Style="min-width:200px" Class="ma-2">
+                    <MudSelect Variant="Variant.Filled" FitContent="true" Disabled="@LoadingService.IsLoading" T="TipoArticuloDTO" @bind-Value="tipoSeleccionado" Label="Listado" Style="min-width:200px" Class="ma-2">
                         <MudSelectItem T="TipoArticuloDTO" Value="@tipoDefault">@tipoDefault.Nombre</MudSelectItem>
                         @foreach (TipoArticuloDTO tipo in tipoArticulos)
                         {
@@ -22,19 +20,19 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="6" md="2" Class="d-flex align-center">
-                    <MudDatePicker Label="Fecha Inicio" Variant="Variant.Filled" Disabled="@loading" @bind-Date="inicio" />
+                    <MudDatePicker Label="Fecha Inicio" Variant="Variant.Filled" Disabled="@LoadingService.IsLoading" @bind-Date="inicio" />
                 </MudItem>
                 <MudItem xs="12" sm="6" md="2" Class="d-flex align-center">
-                    <MudDatePicker Label="Fecha Fin" Variant="Variant.Filled"  Disabled="@loading" @bind-Date="fin"/>
+                    <MudDatePicker Label="Fecha Fin" Variant="Variant.Filled" Disabled="@LoadingService.IsLoading" @bind-Date="fin" />
                 </MudItem>
                 <MudItem xs="4" sm="3" md="2" Class="d-flex align-center">
-                    <MudIconButton Style="height:fit-content" Color="Color.Primary" Variant="Variant.Filled" Icon="@Icons.Material.Filled.FilterAlt" />
+                    <MudIconButton Style="height:fit-content" Color="Color.Primary" Disabled="@LoadingService.IsLoading" Variant="Variant.Filled" Icon="@Icons.Material.Filled.FilterAlt" />
                 </MudItem>
                 <MudItem xs="4" sm="1" md="1" Class="d-flex align-center">
-                    <MudIconButton Style="height:fit-content" Color="Color.Primary" Variant="Variant.Filled" OnClick="ReloadTable" Icon="@Icons.Material.Filled.Search" />
+                    <MudIconButton Style="height:fit-content" Color="Color.Primary" Disabled="@LoadingService.IsLoading" Variant="Variant.Filled" OnClick="ReloadTable" Icon="@Icons.Material.Filled.Search" />
                 </MudItem>
                 <MudItem xs="4" sm="1" md="1" Class="d-flex align-center">
-                    <MudIconButton Style="height:fit-content" Disabled="@loading" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Add" />
+                    <MudIconButton Style="height:fit-content" Disabled="@LoadingService.IsLoading" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Add" />
                 </MudItem>
             </MudGrid>
         </MudPaper>
@@ -47,8 +45,7 @@
                      FixedHeader="true"
                      FixedFooter="false"
                      Dense="true"
-                     Hover="true"
-                     >
+                     Hover="true">
 
                 <HeaderContent>
                     <MudTh Style="font-weight: bold;"># Pedido</MudTh>
@@ -72,7 +69,7 @@
                     </MudTd>
                 </RowTemplate>
                 <PagerContent>
-                    <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+                    <MudTablePager HideRowsPerPage=true PageSizeOptions="new int[] { 10, 25, 50 }"></MudTablePager>
                 </PagerContent>
                 <NoRecordsContent>
                     <div class="d-flex flex-column align-center justify-center pa-8">
@@ -80,6 +77,9 @@
                         <MudText Typo="Typo.body1">No se encontraron registros.</MudText>
                     </div>
                 </NoRecordsContent>
+                <LoadingContent>
+                    <MudProgressCircular/>
+                </LoadingContent>
             </MudTable>
     </MudContainer>
 </CustomView>
@@ -92,16 +92,18 @@
     private TipoArticuloDTO tipoDefault = new TipoArticuloDTO { Id = 0, Nombre = "Todos los pedidos" };
     private DateTime? inicio = DateTime.Today;
     private DateTime? fin = DateTime.Today;
-    private bool loading = false;
     private int CurrentPage;
+    private int totalItems = 0;
 
     protected override async Task OnInitializedAsync()
     {
+        LoadingService.OnLoadingStateChanged += StateHasChanged;
         await LoadTipoArticulos();
     }
 
     private async Task ReloadTable()
     {
+        totalItems = table.GetFilteredItemsCount();
         if (table != null)
         {
             await table.ReloadServerData();
@@ -110,67 +112,69 @@
 
     private async Task<TableData<PedidoDTO>> ShowList(TableState state, CancellationToken token)
     {
-        loading = true;
-        // DEBUG
-        await Task.Delay(1000, token);
-        // DEBUG
-        PaginacionDTO paginacionDTO = new PaginacionDTO
+        using (LoadingService.LoadingScope())
         {
-            GetTotalItems = true,
-            Page = state.Page,
-            RecordsPerPage = state.PageSize,
-
-        };
-        ValidacionDTO valid = utilities.ValidarFechas(inicio, fin);
-        if (!valid.EsValido)
-        {
-            Console.WriteLine(valid.Mensaje);
-            loading = false;
-            return new TableData<PedidoDTO>() { TotalItems = 0, Items = new List<PedidoDTO>() };
-        }
-
-        var response = await httpClient.PostAsJsonAsync("api/Pedido/GetListadoPedidos", new RequestDTO(paginacionDTO, inicio, fin), token);
-        if (response.IsSuccessStatusCode)
-        {
-            var pedidos = await response.Content.ReadFromJsonAsync<ListadoDTO<PedidoDTO>>();
-            if (pedidos == null)
+            PaginacionDTO paginacionDTO = new PaginacionDTO
             {
-                pedidos = new ListadoDTO<PedidoDTO>();
-            }
-            loading = false;
-            return new TableData<PedidoDTO>()
-            {
-                TotalItems = pedidos.TotalItems,
-                Items = pedidos.Listado
+                GetTotalItems = (totalItems <= 0),
+                Page = state.Page,
+                RecordsPerPage = state.PageSize,
+
             };
-        }
-        loading = false;
-        return new TableData<PedidoDTO>() { TotalItems = 0, Items = new List<PedidoDTO>() };
+            ValidacionDTO valid = Utilities.ValidarFechas(inicio, fin);
+            if (!valid.EsValido)
+            {
+                Console.WriteLine(valid.Mensaje);
+                return new TableData<PedidoDTO>() { TotalItems = 0, Items = new List<PedidoDTO>() };
+            }
+
+            var response = await HttpClient.PostAsJsonAsync("api/Pedido/GetListadoPedidos", new RequestDTO(paginacionDTO, inicio, fin), token);
+            if (response.IsSuccessStatusCode)
+            {
+                var pedidos = await response.Content.ReadFromJsonAsync<ListadoDTO<PedidoDTO>>();
+                if (pedidos == null)
+                {
+                    pedidos = new ListadoDTO<PedidoDTO>();
+                }
+                return new TableData<PedidoDTO>()
+                {
+                    TotalItems = pedidos.TotalItems,
+                    Items = pedidos.Listado
+                };
+            }
+            return new TableData<PedidoDTO>() { TotalItems = 0, Items = new List<PedidoDTO>() };
+        }        
     }
 
 
     private async Task LoadTipoArticulos()
     {
-        loading = true;
-        try
+        using (LoadingService.LoadingScope())
         {
-            tipoSeleccionado = tipoDefault; // Inicializar con el valor por defecto
-            var response = await httpClient.GetAsync("api/Articulo/GetTipoArticulos");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                tipoArticulos = await response.Content.ReadFromJsonAsync<List<TipoArticuloDTO>>() ?? new List<TipoArticuloDTO>();
+                tipoSeleccionado = tipoDefault; // Inicializar con el valor por defecto
+                var response = await HttpClient.GetAsync("api/Articulo/GetTipoArticulos");
+                if (response.IsSuccessStatusCode)
+                {
+                    tipoArticulos = await response.Content.ReadFromJsonAsync<List<TipoArticuloDTO>>() ?? new List<TipoArticuloDTO>();
+                }
+                else
+                {
+                    // Manejar error de la API
+                    Console.WriteLine($"Error al cargar tipos de artículos: {response.ReasonPhrase}");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                // Manejar error de la API
-                Console.WriteLine($"Error al cargar tipos de artículos: {response.ReasonPhrase}");
+                // Manejar excepciones
+                Console.WriteLine($"Excepción al cargar tipos de artículos: {ex.Message}");
             }
         }
-        catch (Exception ex)
-        {
-            // Manejar excepciones
-            Console.WriteLine($"Excepción al cargar tipos de artículos: {ex.Message}");
-        }
-        loading = false;
+    }
+
+    public void Dispose()
+    {
+        LoadingService.OnLoadingStateChanged -= StateHasChanged;
     }
 }
