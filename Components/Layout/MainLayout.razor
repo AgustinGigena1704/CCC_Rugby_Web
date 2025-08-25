@@ -16,14 +16,13 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 <AuthorizeView>
-    <MudLayout Style="height:100vh;" Class="flex-grow-1">
+    <MudLayout Style="height:100dvh;" Class="flex-grow-1">
         <MudAppBar Elevation="1">
             <MudIconButton Icon="@Icons.Material.Filled.Menu"
                            Color="Color.Inherit"
                            Edge="Edge.Start"
                            OnClick="@ToggleDrawer" />
             <MudSpacer />
-            <MudText Class="mr-4">@context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value.ToString()</MudText>
             <MudText Class="mr-4">@context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value.ToString()</MudText>
             <MudMenu 
                 ActivationEvent="@MouseEvent.LeftClick" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
@@ -108,8 +107,8 @@
                 </MudButton>
             </MudNavMenu>
         </MudDrawer>
-        <MudMainContent>
-            <MudContainer Class="d-flex flex-column justify-center align-center">
+        <MudMainContent Class="d-flex flex-grow-1 overflow-auto">
+            <MudContainer MaxWidth="MaxWidth.False" Class="pa-4 d-flex flex-column flex-grow-1">
                 <br />
                 @Body
             </MudContainer>

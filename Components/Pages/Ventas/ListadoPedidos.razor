@@ -8,61 +8,92 @@
 
 
 <CustomView Roles="pedidos">
-    <MudPaper Width="95%" MinWidth="70%" Height="20%" MaxHeight="20%">
-        <MudText>Listado de Pedidos</MudText><br />
-        <MudGrid Spacing="10" Justify="Justify.Center" AlignItems="Center">
-            <MudItem xs="12" sm="6" md="3">
-                <MudSelect Variant="Variant.Filled" FitContent="true" Disabled="@loading" T="TipoArticuloDTO" @bind-Value="tipoSeleccionado" Label="Listado" Style="min-width:200px" Class="ma-2">
-                    <MudSelectItem T="TipoArticuloDTO" Value="@tipoDefault">@tipoDefault.Nombre</MudSelectItem>
-                    @foreach (TipoArticuloDTO tipo in tipoArticulos)
-                    {
-                        <MudSelectItem T="TipoArticuloDTO" Value="@tipo">@tipo.Nombre</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12" sm="6" md="2">
-                <MudDatePicker Label="Fecha Inicio" Variant="Variant.Filled" Disabled="@loading" @bind-Date="inicio" />
-            </MudItem>
-            <MudItem xs="12" sm="6" md="2">
-            <MudDatePicker Label="Fecha Fin" Variant="Variant.Filled"  Disabled="@loading" @bind-Date="fin"/>
-            </MudItem>
-            <MudItem xs="12" sm="6" md="5" Class="d-flex flex-row justify-center justify-md-start gap-2">
-            <MudButton Variant="Variant.Filled" Disabled="@loading">Filtros</MudButton>
-            <MudIconButton Variant="Variant.Filled" OnClick="ReloadTable" Icon="@Icons.Material.Filled.Search" />
-            <MudIconButton Disabled="@loading" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Add"/>
-            </MudItem>
-        </MudGrid>
-    </MudPaper>
-    <br/>
-    <MudContainer  Style="width=95%">
-        <MudTable @ref="table" T="Pedido" ServerData="ShowList">
-            <ToolBarContent>
-                <MudText Typo="Typo.h6">@tipoSeleccionado.Nombre</MudText>
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh># Pedido</MudTh>
-                <MudTh>Tipo</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="# Pedido">@context.Id</MudTd>
-                <MudTd DataLabel="Tipo">@context.Articulos.First().TipoArticulo.Nombre</MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
-            </PagerContent>
-        </MudTable>
+    <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pa-4 d-flex flex-column" Style="height: 100%; overflow: hidden;">
+        <MudText>@CurrentPage.ToString()</MudText>
+        <MudPaper Class="pa-4 mb-4" Style="flex-shrink: 0;">
+            <MudGrid Spacing="5" Class="width:100%; justify-start justify-md-center" Style="align-items:center">
+                <MudItem xs="12" sm="6" md="3" Class="d-flex align-center">
+                    <MudSelect Variant="Variant.Filled" FitContent="true" Disabled="@loading" T="TipoArticuloDTO" @bind-Value="tipoSeleccionado" Label="Listado" Style="min-width:200px" Class="ma-2">
+                        <MudSelectItem T="TipoArticuloDTO" Value="@tipoDefault">@tipoDefault.Nombre</MudSelectItem>
+                        @foreach (TipoArticuloDTO tipo in tipoArticulos)
+                        {
+                            <MudSelectItem T="TipoArticuloDTO" Value="@tipo">@tipo.Nombre</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="2" Class="d-flex align-center">
+                    <MudDatePicker Label="Fecha Inicio" Variant="Variant.Filled" Disabled="@loading" @bind-Date="inicio" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="2" Class="d-flex align-center">
+                    <MudDatePicker Label="Fecha Fin" Variant="Variant.Filled"  Disabled="@loading" @bind-Date="fin"/>
+                </MudItem>
+                <MudItem xs="4" sm="3" md="2" Class="d-flex align-center">
+                    <MudIconButton Style="height:fit-content" Color="Color.Primary" Variant="Variant.Filled" Icon="@Icons.Material.Filled.FilterAlt" />
+                </MudItem>
+                <MudItem xs="4" sm="1" md="1" Class="d-flex align-center">
+                    <MudIconButton Style="height:fit-content" Color="Color.Primary" Variant="Variant.Filled" OnClick="ReloadTable" Icon="@Icons.Material.Filled.Search" />
+                </MudItem>
+                <MudItem xs="4" sm="1" md="1" Class="d-flex align-center">
+                    <MudIconButton Style="height:fit-content" Disabled="@loading" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Add" />
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+        <br/>
+            <MudTable @ref="table" 
+                     T="PedidoDTO" 
+                     ServerData="ShowList"
+                     Class="d-flex flex-column"
+                     Style="height: 100%;"
+                     FixedHeader="true"
+                     FixedFooter="false"
+                     Dense="true"
+                     Hover="true"
+                     >
+
+                <HeaderContent>
+                    <MudTh Style="font-weight: bold;"># Pedido</MudTh>
+                    <MudTh Style="font-weight: bold;">Cantidad de Artículos</MudTh>
+                    <MudTh Style="font-weight: bold;">Estado</MudTh>
+                    <MudTh Style="font-weight: bold;">Comprador</MudTh>
+                    <MudTh Style="font-weight: bold;">Vendedor</MudTh>
+                    <MudTh Style="font-weight: bold;">Acciones</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="# Pedido">@context.Id</MudTd>
+                    <MudTd DataLabel="Cantidad de Artículos">@context.CantidadArticulos</MudTd>
+                    <MudTd DataLabel="Estado">@context.EstadoNombre</MudTd>
+                    <MudTd DataLabel="Comprador">@context.NombreComprador</MudTd>
+                    <MudTd DataLabel="Vendedor">@context.UsuarioUsername</MudTd>
+                    <MudTd DataLabel="Acciones">
+                    <MudButtonGroup Size="Size.Small">
+                        <MudIconButton Color="Color.Primary" Icon="@Icons.Material.Filled.Visibility"/>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary"/>
+                    </MudButtonGroup>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+                </PagerContent>
+                <NoRecordsContent>
+                    <div class="d-flex flex-column align-center justify-center pa-8">
+                        <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Class="mb-2" />
+                        <MudText Typo="Typo.body1">No se encontraron registros.</MudText>
+                    </div>
+                </NoRecordsContent>
+            </MudTable>
     </MudContainer>
 </CustomView>
 
 
 @code {
+    private MudTable<PedidoDTO> table;
     private List<TipoArticuloDTO> tipoArticulos = new List<TipoArticuloDTO>();
     private TipoArticuloDTO tipoSeleccionado { get; set; } = new TipoArticuloDTO { Id = 0, Nombre = "Todos los pedidos" };
     private TipoArticuloDTO tipoDefault = new TipoArticuloDTO { Id = 0, Nombre = "Todos los pedidos" };
     private DateTime? inicio = DateTime.Today;
     private DateTime? fin = DateTime.Today;
     private bool loading = false;
-    private MudTable<Pedido> table;
+    private int CurrentPage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,10 +108,12 @@
         }
     }
 
-    private async Task<TableData<Pedido>> ShowList(TableState state, CancellationToken token)
+    private async Task<TableData<PedidoDTO>> ShowList(TableState state, CancellationToken token)
     {
         loading = true;
-        await Task.Delay(3000, token);
+        // DEBUG
+        await Task.Delay(1000, token);
+        // DEBUG
         PaginacionDTO paginacionDTO = new PaginacionDTO
         {
             GetTotalItems = true,
@@ -93,21 +126,26 @@
         {
             Console.WriteLine(valid.Mensaje);
             loading = false;
-            return new TableData<Pedido>() { TotalItems = 0, Items = new List<Pedido>() };
+            return new TableData<PedidoDTO>() { TotalItems = 0, Items = new List<PedidoDTO>() };
         }
 
         var response = await httpClient.PostAsJsonAsync("api/Pedido/GetListadoPedidos", new RequestDTO(paginacionDTO, inicio, fin), token);
         if (response.IsSuccessStatusCode)
         {
-            var pedidos = await response.Content.ReadFromJsonAsync<ListadoDTO<Pedido>>() ?? new ListadoDTO<Pedido>();
-            return new TableData<Pedido>()
+            var pedidos = await response.Content.ReadFromJsonAsync<ListadoDTO<PedidoDTO>>();
+            if (pedidos == null)
+            {
+                pedidos = new ListadoDTO<PedidoDTO>();
+            }
+            loading = false;
+            return new TableData<PedidoDTO>()
             {
                 TotalItems = pedidos.TotalItems,
                 Items = pedidos.Listado
             };
         }
         loading = false;
-        return new TableData<Pedido>() { TotalItems = 0, Items = new List<Pedido>() };
+        return new TableData<PedidoDTO>() { TotalItems = 0, Items = new List<PedidoDTO>() };
     }
 
 

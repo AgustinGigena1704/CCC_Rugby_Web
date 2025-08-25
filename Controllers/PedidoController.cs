@@ -1,7 +1,6 @@
 ﻿using CCC_Rugby_Web.DTOs;
 using CCC_Rugby_Web.Models.Repositories;
 using CCC_Rugby_Web.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CCC_Rugby_Web.Controllers
@@ -30,8 +29,7 @@ namespace CCC_Rugby_Web.Controllers
             {
                 return BadRequest("Paginacion cannot be null.");
             }
-            PaginacionDTO paginacionDTO = requestDTO.paginacion;
-            var pedidos = await entityManager.GetRepository<PedidoRepository>().GetListadoAsync(requestDTO.inicio, requestDTO.fin, paginacionDTO, cancellationToken);
+            var pedidos = await entityManager.GetRepository<PedidoRepository>().GetListadoAsync(requestDTO.inicio, requestDTO.fin, requestDTO.paginacion, cancellationToken);
             return Ok(pedidos);
         }
 
