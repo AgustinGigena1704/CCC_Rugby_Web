@@ -2,7 +2,7 @@
 {
     public class ListadoDTO<T> where T : class
     {
-        public int TotalItems;
-        public List<T> Listado = new List<T>();
+        public int TotalItems { get; set; }
+        public List<T> Listado { get; set; } = new List<T>();
     }
 }

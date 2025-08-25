@@ -1,9 +1,9 @@
 using CCC_Rugby_Web.Components;
-using CCC_Rugby_Web.Components.Utils;
 using CCC_Rugby_Web.Models;
 using CCC_Rugby_Web.Models.Repositories;
 using CCC_Rugby_Web.Security;
 using CCC_Rugby_Web.Services;
+using CCC_Rugby_Web.Utilities;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;

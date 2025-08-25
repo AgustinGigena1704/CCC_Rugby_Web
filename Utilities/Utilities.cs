@@ -1,6 +1,6 @@
 ﻿using CCC_Rugby_Web.DTOs;
 
-namespace CCC_Rugby_Web.Components.Utils
+namespace CCC_Rugby_Web.Utilities
 {
     public interface IUtilities
     {

@@ -153,6 +153,15 @@ namespace CCC_Rugby_Web.Models
                 .HasMany(p => p.Articulos)
                 .WithMany(a => a.Pedidos)
                 .UsingEntity("pedido_articulos");
+            modelBuilder.Entity<Pedido>()
+                .Property(p => p.Fecha)
+                .HasColumnName("fecha")
+                .HasConversion(
+                    // De DateTime a DateOnly (para guardar en BD)
+                    v => DateOnly.FromDateTime(v),
+                    // De DateOnly a DateTime (para leer de BD)
+                    v => v.ToDateTime(TimeOnly.MinValue)
+                );
 
             base.OnModelCreating(modelBuilder);
         }

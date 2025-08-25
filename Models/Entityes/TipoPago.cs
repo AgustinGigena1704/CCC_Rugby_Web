@@ -6,12 +6,12 @@ namespace CCC_Rugby_Web.Models.Entityes
     [Table("tipo_pago")]
     public class TipoPago : GenericEntity
     {
-        [Column("nombre")]
+        [Column("nombre", Order = 1)]
         [Required]
         public required string Nombre { get; set; }
-        [Column("descripcion")]
+        [Column("descripcion", Order = 2)]
         public string? Descripcion { get; set; } = null;
-        [Column("codigo")]
+        [Column("codigo", Order = 3)]
         [Required]
         public required string Codigo { get; set; }
     }

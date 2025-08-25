@@ -12,31 +12,53 @@ namespace CCC_Rugby_Web.Models.Repositories
         {
         }
 
-        public async Task<ListadoDTO<Pedido>> GetListadoAsync(DateTime inicio, DateTime fin, PaginacionDTO paginacion, CancellationToken cancellationToken = default, TipoArticulo? tipo = null, bool total = false)
+        public async Task<ListadoDTO<PedidoDTO>> GetListadoAsync(DateTime inicio, DateTime fin, PaginacionDTO paginacion, CancellationToken cancellationToken = default, TipoArticulo? tipo = null)
         {
-            ListadoDTO<Pedido> Listado = new ListadoDTO<Pedido>();
-            var query = context.Pedidos.Where(p =>
-                    p.BorradoLogico != true
-                    && DateTime.Compare(p.CreatedAt, inicio) >= 0
-                    && DateTime.Compare(p.CreatedAt, fin) <= 0)
+            ListadoDTO<PedidoDTO> Listado = new ListadoDTO<PedidoDTO>();
+            try
+            {
+
+                var query = context.Pedidos.Where(p =>
+                        p.BorradoLogico != true
+                        && inicio.Date <= p.Fecha
+                        && fin.Date >= p.Fecha)
+                        .AsQueryable();
+                if (tipo != null)
+                {
+                    query = query.Where(p => p.Articulos.Any(a => a.TipoArticuloId == tipo.Id));
+                }
+
+                if (paginacion.GetTotalItems)
+                {
+                    Listado.TotalItems = await query.CountAsync(cancellationToken);
+                }
+
+                var pedidos = await query
                     .Include(p => p.Articulos)
-                    .AsQueryable();
+                    .Skip((paginacion.Page) * paginacion.RecordsPerPage)
+                    .Take(paginacion.RecordsPerPage)
+                    .Select(p => new PedidoDTO
+                    {
+                        Id = p.Id,
+                        Fecha = p.Fecha,
+                        NombreComprador = p.NombreComprador,
+                        CantidadArticulos = p.Articulos.Count,
+                        DireccionEntrega = p.DireccionEntrega,
+                        EstadoId = p.EstadoId,
+                        EstadoNombre = p.Estado.Nombre,
+                        TipoPagoId = p.TipoPagoId,
+                        TipoPagoNombre = p.TipoPago != null ? p.TipoPago.Nombre : null,
+                        UsuarioUsername = p.Usuario.Username
+                    })
+                    .ToListAsync(cancellationToken);
 
-
-            if (total)
-            {
-                Listado.TotalItems = await query.CountAsync(cancellationToken);
+                Listado.Listado = pedidos;
             }
-
-            if (tipo != null)
+            catch (Exception ex)
             {
-                query = query.Where(p => p.Articulos.Any(a => a.TipoArticuloId == tipo.Id));
+                // Manejo de errores (log, rethrow, etc.)
+                throw new Exception("Error retrieving pedidos", ex);
             }
-
-            var pedidos = await query
-                .Skip((paginacion.Page - 1) * paginacion.RecordsPerPage)
-                .Take(paginacion.RecordsPerPage)
-                .ToListAsync(cancellationToken);
             return Listado;
         }
     }

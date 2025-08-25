@@ -6,19 +6,15 @@
         public DateTime inicio { get; set; } = DateTime.UtcNow;
         public DateTime fin { get; set; } = DateTime.UtcNow;
 
+        // Constructor sin parámetros OBLIGATORIO para deserialización JSON
+        public RequestDTO() { }
+
+        // Tu constructor con parámetros (mantén este si lo necesitas)
         public RequestDTO(PaginacionDTO? paginacion, DateTime? inicio, DateTime? fin)
         {
             this.paginacion = paginacion;
-            if (inicio == null)
-            {
-                inicio = DateTime.UtcNow;
-            }
-            this.inicio = (DateTime)inicio;
-            if (fin == null)
-            {
-                fin = DateTime.UtcNow;
-            }
-            this.fin = (DateTime)fin;
+            this.inicio = inicio ?? DateTime.UtcNow;
+            this.fin = fin ?? DateTime.UtcNow;
         }
     }
 }
