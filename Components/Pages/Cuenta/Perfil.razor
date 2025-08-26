@@ -7,6 +7,7 @@
 @inject AuthService authService
 @inject AuthStateProvider auth
 @inject HttpClient httpClient
+@inject INotificationService NotificationService
 <MudText Align="Align.Center" Style="align-self=auto;">Perfil</MudText>
 <MudPaper Height="95%">
     <MudContainer>
@@ -19,7 +20,7 @@
                            <MudButton>Subir Avatar</MudButton>
                        </ActivatorContent>
         </MudFileUpload>
-        <MudText>@error</MudText>
+
         @foreach(string rol in roles)
         {
             <MudText>@rol</MudText>
@@ -27,11 +28,8 @@
     </MudContainer>
 </MudPaper>
 
-
-
 @code {
     private string? avatarUrl;
-    private string error = "";
     private int currentUserId;
     private List<string> roles = new List<string>();
 
@@ -52,7 +50,7 @@
         }
         catch(Exception e)
         {
-            error = e.Message;
+            NotificationService.ShowError($"Error al subir avatar: {e.Message}");
         }
     }
 
@@ -69,7 +67,6 @@
         try
         {
             StateHasChanged();
-
 
             var authState = await auth.GetAuthenticationStateAsync();
             var userIdClaim = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
@@ -92,8 +89,7 @@
         }
         catch (Exception ex)
         {
-            // Log del error si es necesario
-            Console.WriteLine($"Error cargando avatar: {ex.Message}");
+            NotificationService.ShowError($"Error cargando avatar: {ex.Message}");
         }
         finally
         {

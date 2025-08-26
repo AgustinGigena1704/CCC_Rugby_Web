@@ -45,13 +45,14 @@ MudGlobal.UnhandledExceptionHandler = (exception) => Console.WriteLine(exception
 
 builder.Services.AddDbContext<CCC_DbContext>(opt =>
 {
-    var connectionString = (builder.Environment.IsDevelopment()) ? builder.Configuration.GetConnectionString("CCC_DbContext") :
-                       GetConnectionString(builder);
+    var connectionString = (builder.Environment.IsDevelopment()) ? builder.Configuration.GetConnectionString("CCC_DbContext") : GetConnectionString(builder);
     opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 
 builder.Services.AddScoped<EntityManager>();
 builder.Services.AddScoped<IUtilities, Utilities>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddSingleton<ILoadingService, LoadingService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -93,7 +94,6 @@ if (builder.Environment.IsProduction())
     ConfigureJwtKey(builder);
 }
 
-
 // Authentication configuration
 builder.Services.AddAuthentication("CustomScheme")
     .AddScheme<CustomOptions, AuthHandler>("CustomScheme", options => { });
@@ -124,7 +124,6 @@ app.UseAuthorization();
 
 app.UseAntiforgery();
 
-
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
@@ -132,7 +131,7 @@ app.MapControllers();
 
 app.Run();
 
-// Métodos auxiliares
+// Mï¿½todos auxiliares
 static string GetConnectionString(WebApplicationBuilder builder)
 {
     // Prioridad: Variable de entorno -> appsettings
@@ -145,7 +144,7 @@ static string GetConnectionString(WebApplicationBuilder builder)
 
     if (string.IsNullOrEmpty(connectionString))
     {
-        throw new InvalidOperationException("No se encontró una cadena de conexión válida. Configure CONNECTION_STRING como variable de entorno o en appsettings.json");
+        throw new InvalidOperationException("No se encontrï¿½ una cadena de conexiï¿½n vï¿½lida. Configure CONNECTION_STRING como variable de entorno o en appsettings.json");
     }
 
     return connectionString;
@@ -162,7 +161,7 @@ static void ConfigureJwtKey(WebApplicationBuilder builder)
 
     if (string.IsNullOrEmpty(jwtKey))
     {
-        throw new InvalidOperationException("No se encontró una clave JWT válida. Configure JWT_KEY como variable de entorno o en appsettings.json");
+        throw new InvalidOperationException("No se encontrï¿½ una clave JWT vï¿½lida. Configure JWT_KEY como variable de entorno o en appsettings.json");
     }
 
     builder.Configuration["JWT:Key"] = jwtKey;

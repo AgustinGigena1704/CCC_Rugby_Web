@@ -4,7 +4,7 @@
 @inject AuthService authService
 @inject AuthStateProvider authStateProvider
 @inject NavigationManager navManager
-@inject HttpClient httpClient
+@inject INotificationService NotificationService
 
 <MudPaper Style="width: 90%; height: 90%; min-height:500px;" MaxWidth="500px" MaxHeight="600px">
     <MudContainer Style="height:100%; width:100%; display:flex; flex-direction:column;">
@@ -28,12 +28,9 @@
         @if (loading)
         {
             <MudProgressLinear Color="Color.Primary"
-                               Indeterminate="true"
-                               Class="my-7 text-center" />
-        }
-        @if (!string.IsNullOrEmpty(info))
-        {
-            <MudAlert Severity="Severity.Error">@info</MudAlert>
+                Indeterminate="true"
+                Class="my-7 text-center" 
+            />
         }
     </MudContainer>
 </MudPaper>
@@ -41,7 +38,6 @@
 @code {
     private MudForm form;
     private LoginDTO loginDTO = new LoginDTO();
-    private string? info;
     private bool loading = false;
     private InputType passwordInput = InputType.Password;
     private string passwordIcon = Icons.Material.Filled.VisibilityOff;
@@ -88,7 +84,7 @@
                 }
                 catch (Exception ex)
                 {
-                    info = ex.Message;
+                    NotificationService.ShowError($"Error al iniciar sesión: {ex.Message}");
                     loading = false;
                 }
             }

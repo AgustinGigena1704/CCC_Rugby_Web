@@ -2,6 +2,7 @@
 @layout MainLayout
 @attribute [Authorize]
 @inject HttpClient httpClient
+@inject INotificationService NotificationService
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Net.Http.Headers;
 
@@ -11,15 +12,36 @@
         <MudToolBar Dense="true" Class="pa-0">
             <MudText Typo="Typo.h5" Class="px-2">Listado de Ventas</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">Nueva Venta</MudButton>    
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="ShowSuccessMessage">Nueva Venta</MudButton>    
         </MudToolBar>
         <MudContainer>
             <MudText>XXX</MudText>
+            <MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="ShowInfoMessage" Class="ma-2">Mostrar Info</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="ShowWarningMessage" Class="ma-2">Mostrar Warning</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="ShowErrorMessage" Class="ma-2">Mostrar Error</MudButton>
         </MudContainer>
     </MudPaper>
 </CustomView>
 
 
 @code {
-    
+    private void ShowSuccessMessage()
+    {
+        NotificationService.ShowSuccess("¡Venta creada exitosamente!");
+    }
+
+    private void ShowInfoMessage()
+    {
+        NotificationService.ShowInfo("Esta es una notificación informativa");
+    }
+
+    private void ShowWarningMessage()
+    {
+        NotificationService.ShowWarning("¡Atención! Este es un mensaje de advertencia");
+    }
+
+    private void ShowErrorMessage()
+    {
+        NotificationService.ShowError("¡Error! Algo salió mal en la operación");
+    }
 }

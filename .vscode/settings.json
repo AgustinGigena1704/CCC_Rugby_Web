@@ -1,0 +1,23 @@
+{
+    "omnisharp.enableRoslynAnalyzers": true,
+    "omnisharp.enableEditorConfigSupport": true,
+    "omnisharp.enableAsyncCompletion": true,
+    "omnisharp.enableMsBuildLoadProjectsOnDemand": true,
+    "omnisharp.enableRoslynAnalyzers": true,
+    "dotnet.defaultSolution": "CCC_Rugby_Web.sln",
+    "files.associations": {
+        "*.razor": "razor"
+    },
+    "razor.format.enable": true,
+    "razor.completion.includeSnippets": true,
+    "razor.completion.includeTagHelpers": true,
+    "razor.completion.includeCompletions": true,
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+    "dotnet.formatting.organizeImportsOnFormat": true,
+    "editor.fontFamily": "'Fira Code', 'Cascadia Code', 'Consolas', 'Courier New', monospace",
+    "editor.fontLigatures": true,
+    "editor.fontSize": 14,
+    "editor.fontWeight": "400",
+    "editor.letterSpacing": 0.5,
+    "editor.lineHeight": 1.5
+}
