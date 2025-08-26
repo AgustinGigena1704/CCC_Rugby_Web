@@ -1,0 +1,22 @@
+# Cursor Rules for MudBlazor Project
+
+## MudBlazor Component Recognition
+- Enable IntelliSense for MudBlazor components
+- Recognize MudBlazor component prefixes (Mud*)
+- Provide autocomplete for MudBlazor properties and events
+
+## Razor File Configuration
+- Treat .razor files as Blazor components
+- Enable syntax highlighting for MudBlazor components
+- Provide IntelliSense for MudBlazor component attributes
+
+## Project Structure
+- Recognize Blazor Server project structure
+- Enable proper namespace resolution for MudBlazor
+- Support for component discovery and navigation
+
+## IntelliSense Settings
+- Enable Roslyn analyzers
+- Enable import completion
+- Enable async completion
+- Enable tag helper completion for MudBlazor components

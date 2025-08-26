@@ -10,31 +10,40 @@
 @inject AuthService authService
 @inject AuthStateProvider auth
 @inject HttpClient httpClient
+@inject INotificationService NotificationService
+@inject ISnackbar Snackbar
+@implements IDisposable
 
 <MudThemeProvider IsDarkMode="true" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
+
 <AuthorizeView>
     <MudLayout Style="height:100dvh;" Class="flex-grow-1">
         <MudAppBar Elevation="1">
-            <MudIconButton Icon="@Icons.Material.Filled.Menu"
-                           Color="Color.Inherit"
-                           Edge="Edge.Start"
-                           OnClick="@ToggleDrawer" />
+            <MudIconButton 
+                Icon="@Icons.Material.Filled.Menu"
+                Color="Color.Inherit"
+                Edge="Edge.Start"
+                OnClick="@ToggleDrawer" />
             <MudSpacer />
             <MudText Class="mr-4">@context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value.ToString()</MudText>
             <MudMenu 
-                ActivationEvent="@MouseEvent.LeftClick" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                ActivationEvent="@MouseEvent.LeftClick" 
+                AnchorOrigin="Origin.BottomCenter" 
+                TransformOrigin="Origin.TopCenter"
+                Class="mr-4"
+                >
                 <ActivatorContent>
                     <MudAvatar>
-                        @if(isLoadingAvatar)
+                        @if (isLoadingAvatar)
                         {
-                            <MudProgressCircular Size="Size.Small" Indeterminate="true"/>
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
                         }
-                        else if(!string.IsNullOrEmpty(avatarUrl))
+                        else if (!string.IsNullOrEmpty(avatarUrl))
                         {
-                            <MudImage ObjectFit="ObjectFit.Cover" Src="@avatarUrl"/>
+                            <MudImage ObjectFit="ObjectFit.Cover" Src="@avatarUrl" />
                         }
                         else
                         {
@@ -46,15 +55,19 @@
                     <MudNavLink Href="Cuenta/Perfil" Icon="@Icons.Material.Filled.AccountCircle">Perfil</MudNavLink>
                 </ChildContent>
             </MudMenu>
-        
+
         </MudAppBar>
-        <MudDrawer @bind-Open="@_open"
-                   Elevation="1"
-                   Variant="DrawerVariant.Temporary">
+        <MudDrawer 
+            @bind-Open="@_open"
+            Elevation="1"
+            Variant="DrawerVariant.Temporary"
+            Class="mr-4"
+            >
             <MudDrawerHeader>
-                <MudImage Alt="Logo del Club Ciudad de Campana"
-                          Src="images/ciudad_de_campana.png"
-                          Style="max-width:20%" />
+                <MudImage 
+                    Alt="Logo del Club Ciudad de Campana"
+                    Src="images/ciudad_de_campana.png"
+                    Style="max-width:20%" />
                 <MudDivider Vertical="true" FlexItem="true" />
                 <MudText Style="position: absolute; margin-left:25%;" Typo="Typo.h6">CCC App</MudText>
             </MudDrawerHeader>
@@ -62,32 +75,30 @@
                 <MudNavLink Icon="@Icons.Material.Filled.Home" Href="" Style="color:inherit; text-decoration:none;">
                     Inicio
                 </MudNavLink>
-                    <MudDivider Style="max-height:1px" />
-                    @if (menuLoaded)
+                <MudDivider Style="max-height:1px" />
+                @if (menuLoaded)
+                {
+                    foreach (var group in menu.MenuGrupos)
                     {
-                        foreach (var group in menu.MenuGrupos)
-                        {
-                            <MudNavGroup Title="@group.Nombre" Icon="@group.Icono">
-                                @foreach (var item in group.MenuItems)
-                                {
-                                    <MudNavLink Href="@item.Url" Icon="@item.Icono">
-                                        @item.Nombre
-                                    </MudNavLink>
-                                }
-                            </MudNavGroup>
-                        }
-                        <MudDivider Class="flex-grow-1" Style="background-color:transparent;" />
+                        <MudNavGroup Title="@group.Nombre" Icon="@group.Icono">
+                            @foreach (var item in group.MenuItems)
+                            {
+                                <MudNavLink Href="@item.Url" Icon="@item.Icono">
+                                    @item.Nombre
+                                </MudNavLink>
+                            }
+                        </MudNavGroup>
                     }
-                    else
-                    {
+                    <MudDivider Class="flex-grow-1" Style="background-color:transparent;" />
+                }
+                else
+                {
+                    <MudDivider Class="flex-grow-1" Style="background-color:transparent;" />
+                    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mt-2 mb-2" />
+                    <MudText Align="Align.Center">Cargando menú...</MudText>
+                    <MudDivider Class="flex-grow-1" Style="background-color:transparent;" />
+                }
 
-                        <MudDivider Class="flex-grow-1" Style="background-color:transparent;" />
-                        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mt-2 mb-2" />
-                        <MudText Align="Align.Center">Cargando menú...</MudText>
-                        <MudDivider Class="flex-grow-1" Style="background-color:transparent;" />
-                    }
-                    
-                
                 <MudDivider Style="max-height:1px" />
                 <MudButton Variant="Variant.Text"
                            Style="min-height: 40px"
@@ -110,7 +121,10 @@
         <MudMainContent Class="d-flex flex-grow-1 overflow-auto">
             <MudContainer MaxWidth="MaxWidth.False" Class="pa-4 d-flex flex-column flex-grow-1">
                 <br />
-                @Body
+                <!-- ErrorBoundary envuelve automáticamente todo el contenido de las páginas -->
+                <ErrorBoundary>
+                    @Body
+                </ErrorBoundary>
             </MudContainer>
         </MudMainContent>
     </MudLayout>
@@ -128,6 +142,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Inicializar el servicio de notificaciones con el Snackbar
+        NotificationService.SetSnackbar(Snackbar);
+
         var authState = await auth.GetAuthenticationStateAsync();
         var userIdClaim = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
@@ -135,6 +152,8 @@
         {
             currentUserId = userId;
         }
+
+        // Cargar menú y avatar con manejo de errores
         await LoadMenu();
         await LoadUserAvatar();
     }
@@ -144,7 +163,7 @@
         menuLoaded = false;
         try
         {
-            if(currentUserId > 0)
+            if (currentUserId > 0)
             {
                 var response = await httpClient.GetAsync($"/api/Usuario/GetMainMenu/mainmenu/{currentUserId}");
                 if (response.IsSuccessStatusCode)
@@ -153,21 +172,19 @@
                 }
                 else
                 {
-                    Console.WriteLine("Error al cargar el menú");
+                    NotificationService.ShowError($"Error al cargar el menú: {response.ReasonPhrase}");
                 }
             }
         }
         catch (Exception ex)
         {
-            // Manejo de errores si es necesario
-            Console.WriteLine($"Error cargando menú: {ex.Message}");
+            NotificationService.ShowError($"Error cargando el menú de navegación: {ex.Message}");
         }
         finally
         {
             menuLoaded = true;
             StateHasChanged();
         }
-
     }
 
     private async Task LoadUserAvatar()
@@ -176,28 +193,29 @@
         {
             isLoadingAvatar = true;
             StateHasChanged();
-            if(currentUserId != null)
+            if (currentUserId != null)
             {
-                
-                // Llamar al endpoint para obtener el avatar
                 var response = await httpClient.GetAsync($"api/Usuario/GetAvatar/{currentUserId}");
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     var avatarData = await response.Content.ReadFromJsonAsync<Archivo>();
                     if (avatarData != null && avatarData.bytes != null)
                     {
-                        // Crear la URL de la imagen en formato data URI
                         var mimeType = GetMimeType(avatarData.Extension);
                         avatarUrl = $"data:{mimeType};base64,{avatarData.Base64}";
                     }
+                }
+                else if (response.StatusCode != System.Net.HttpStatusCode.NotFound)
+                {
+                    // Solo mostrar error si no es un 404 (avatar no encontrado es normal)
+                    NotificationService.ShowWarning($"Error al cargar el avatar: {response.ReasonPhrase}");
                 }
             }
         }
         catch (Exception ex)
         {
-            // Log del error si es necesario
-            Console.WriteLine($"Error cargando avatar: {ex.Message}");
+            NotificationService.ShowError($"Error cargando el avatar del usuario: {ex.Message}");
         }
         finally
         {
@@ -226,13 +244,25 @@
 
     private async void LogOut()
     {
-        await authService.LogOutAsync();
-        navManager.NavigateTo("/Auth/Login");
+        try
+        {
+            await authService.LogOutAsync();
+            navManager.NavigateTo("/Auth/Login");
+        }
+        catch (Exception ex)
+        {
+            NotificationService.ShowError($"Error al cerrar sesión: {ex.Message}");
+        }
     }
 
     // Método público para refrescar el avatar cuando se actualice
     public async Task RefreshAvatar()
     {
         await LoadUserAvatar();
+    }
+
+    public void Dispose()
+    {
+        // Cleanup si es necesario
     }
 }

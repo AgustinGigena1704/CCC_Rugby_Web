@@ -1,0 +1,68 @@
+﻿@inject INotificationService NotificationService
+@implements IDisposable
+
+<ErrorBoundary @ref="errorBoundary" @key="@boundaryKey">
+    <ChildContent>
+        @ChildContent
+    </ChildContent>
+    <ErrorContent Context="exception">
+        @{
+            // Mostrar notificación de error
+            NotificationService.ShowError(GetUserFriendlyMessage(exception));
+        }
+        <div class="error-boundary">
+            <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
+                <MudText Typo="Typo.h6">¡Oops! Algo salió mal</MudText>
+                <MudText>@GetUserFriendlyMessage(exception)</MudText>
+                <MudButton 
+                    Color="Color.Primary"
+                    Variant="Variant.Text"
+                    Size="Size.Small"
+                    OnClick="RecoverFromError"
+                    Class="mt-2">
+                    Intentar de nuevo
+                </MudButton>
+            </MudAlert>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private ErrorBoundary? errorBoundary;
+    private string boundaryKey = Guid.NewGuid().ToString();
+
+    private string GetUserFriendlyMessage(Exception exception)
+    {
+        return exception switch
+        {
+            UnauthorizedAccessException => "No tienes permisos para realizar esta acción",
+            ArgumentException => "Los datos proporcionados no son válidos",
+            HttpRequestException => "Error de conexión. Verifica tu conexión a internet",
+            TaskCanceledException => "La operación fue cancelada",
+            TimeoutException => "La operación tardó demasiado tiempo",
+            _ => "Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo."
+        };
+    }
+
+    private void RecoverFromError()
+    {
+        // Cambiar la key para forzar recrear el ErrorBoundary
+        boundaryKey = Guid.NewGuid().ToString();
+        errorBoundary?.Recover();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        // Cleanup if needed
+    }
+}
+
+<style>
+    .error-boundary {
+        margin: 1rem;
+        padding: 1rem;
+    }
+</style>

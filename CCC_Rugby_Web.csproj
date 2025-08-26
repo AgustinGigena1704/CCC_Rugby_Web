@@ -10,6 +10,7 @@
     <Title>CCCRugby</Title>
     <PackageIcon>ciudad_de_campana.png</PackageIcon>
     <NeutralLanguage>es-AR</NeutralLanguage>
+    <UseRazorBuildServer>false</UseRazorBuildServer>
   </PropertyGroup>
 
   <ItemGroup>
