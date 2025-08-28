@@ -10,10 +10,15 @@
         CCC Rugby Web
     </MudAppBar>
     <MudMainContent Class="d-flex justify-center align-center" Style="height: calc(100vh - 64px);">
-        @Body
+        <ErrorBoundary>
+            @Body
+        </ErrorBoundary>
     </MudMainContent>
 </MudLayout>
 
 @code {
-
+    protected override void OnInitialized()
+    {
+        NotificationService.SetSnackbar(Snackbar);
+    }
 }

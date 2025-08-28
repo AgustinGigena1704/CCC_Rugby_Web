@@ -4,9 +4,8 @@
 @inject AuthService authService
 @inject AuthStateProvider authStateProvider
 @inject NavigationManager navManager
-@inject INotificationService NotificationService
 
-<MudPaper Style="width: 90%; height: 90%; min-height:500px;" MaxWidth="500px" MaxHeight="600px">
+<MudPaper Style="width: 90%; height: 90%; min-height:500px;" MaxWidth="500px" MaxHeight="90dvh">
     <MudContainer Style="height:100%; width:100%; display:flex; flex-direction:column;">
         <br/>
         <MudText Align="Align.Center" Typo="Typo.h3">Iniciar Sesion</MudText>
@@ -25,7 +24,7 @@
                 <br />
             </MudFocusTrap>
         </MudForm>
-        @if (loading)
+        @if (LoadingService.IsLoading)
         {
             <MudProgressLinear Color="Color.Primary"
                 Indeterminate="true"
@@ -38,7 +37,6 @@
 @code {
     private MudForm form;
     private LoginDTO loginDTO = new LoginDTO();
-    private bool loading = false;
     private InputType passwordInput = InputType.Password;
     private string passwordIcon = Icons.Material.Filled.VisibilityOff;
     [Parameter][SupplyParameterFromQuery] public string? ReturnUrl { get; set; }
@@ -60,9 +58,9 @@
 
     private async Task HandleLogin()
     {
-        if (!loading)
+        if (!LoadingService.IsLoading)
         {
-            loading = true;
+            LoadingService.StartLoading();
             StateHasChanged();
             await Task.Yield();
             await form.Validate();
@@ -77,18 +75,14 @@
                         var returnUrl = string.IsNullOrEmpty(ReturnUrl) ? "/" : ReturnUrl;
                         navManager.NavigateTo(returnUrl);
                     }
-                    else
-                    {
-                        // Handle login failure (e.g., show a message)
-                    }
                 }
                 catch (Exception ex)
                 {
                     NotificationService.ShowError($"Error al iniciar sesión: {ex.Message}");
-                    loading = false;
+                    LoadingService.StopLoading();
                 }
             }
-            loading = false;
+            LoadingService.StopLoading();
         }
     }
 }

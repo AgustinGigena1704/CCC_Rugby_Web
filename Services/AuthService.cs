@@ -26,7 +26,7 @@ namespace CCC_Rugby_Web.Services
             var user = await usuarioRepository.GetByPassAndUser(dto.Username, dto.Password);
             if (user == null)
             {
-                throw new Exception("Credenciales enviadas invalidas");
+                throw new Exception("Credenciales invalidas.");
             }
             user.LastLogin = DateTime.Now;
             usuarioRepository.Update(user);
