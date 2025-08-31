@@ -8,7 +8,7 @@ namespace CCC_Rugby_Web.Models.Repositories
     [Repository(typeof(Pedido))]
     public class PedidoRepository : GenericRepository<Pedido>
     {
-        public PedidoRepository(CCC_DbContext context, EntityManager entityManager) : base(context, entityManager)
+        public PedidoRepository(CCC_DbContext context, EntityManager entityManager, IUserContextService userContextService) : base(context, entityManager, userContextService)
         {
         }
 

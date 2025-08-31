@@ -8,11 +8,11 @@ namespace CCC_Rugby_Web.Models.Repositories
     [Repository(typeof(Menu))]
     public class MenuRepository : GenericRepository<Menu>
     {
-        public MenuRepository(CCC_DbContext context, EntityManager entityManager) : base(context, entityManager)
+        public MenuRepository(CCC_DbContext context, EntityManager entityManager, IUserContextService userContextService) : base(context, entityManager, userContextService)
         {
         }
 
-        public async Task<MenuDTO> GetMenuDtoByCodigo(string codigo, int userId)
+        public async Task<MenuDTO> GetMenuDtoByCodigo(string codigo, Usuario ActualUser)
         {
             var menu = await context.Menus
                 .FirstOrDefaultAsync(m => m.Codigo == codigo && !m.BorradoLogico);
@@ -24,11 +24,7 @@ namespace CCC_Rugby_Web.Models.Repositories
 
             if (menu == null)
                 return r;
-
-            var usuario = await entityManager.GetRepository<UsuarioRepository>().GetById(userId);
-            if (usuario == null)
-                return r;
-            var roles = usuario.Roles;
+            var roles = ActualUser.Roles;
 
 
             if (roles.Select(r => r.Codigo).Contains("admin"))

@@ -7,13 +7,10 @@ namespace CCC_Rugby_Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ArticuloController : ControllerBase
+    public class ArticuloController : GenericController
     {
-        private readonly EntityManager entityManager;
-        public ArticuloController(EntityManager entityManager)
-        {
-            this.entityManager = entityManager;
-        }
+        public ArticuloController(EntityManager entityManager) : base(entityManager) { }
+
         [HttpGet("GetTipoArticulos")]
         public async Task<IActionResult> GetTipoArticulos()
         {

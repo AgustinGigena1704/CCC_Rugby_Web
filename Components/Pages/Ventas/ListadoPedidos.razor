@@ -1,6 +1,11 @@
 ﻿@page "/Ventas/Listados"
 @layout MainLayout
 @attribute [Authorize]
+@inject LoadingService LoadingService
+@inject HttpClient HttpClient
+@inject IUtilities Utilities
+@inject INotificationService NotificationService
+
 
 <CustomView Roles="pedidos">
     <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pa-4 d-flex flex-column" Style="height: 100%; overflow: hidden;">
@@ -29,7 +34,7 @@
                     <MudIconButton Style="height:fit-content" Color="Color.Primary" Disabled="@LoadingService.IsLoading" Variant="Variant.Filled" OnClick="ReloadTable" Icon="@Icons.Material.Filled.Search" />
                 </MudItem>
                 <MudItem xs="4" sm="1" md="1" Class="d-flex align-center">
-                    <MudIconButton Style="height:fit-content" Disabled="@LoadingService.IsLoading" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Add" OnClick="Error" />
+                    <MudIconButton Style="height:fit-content" Disabled="@LoadingService.IsLoading" Variant="Variant.Filled" Color="Color.Primary" Icon="@Icons.Material.Filled.Add" />
                 </MudItem>
             </MudGrid>
         </MudPaper>
@@ -143,10 +148,6 @@
             return new TableData<PedidoDTO>() { TotalItems = 0, Items = new List<PedidoDTO>() };
         }        
     }
-    private void Error()
-    {
-        NotificationService.ShowError("Error de prueba");
-    }
 
     private async Task LoadTipoArticulos()
     {
@@ -162,12 +163,12 @@
                 }
                 else
                 {
-                    NotificationService.ShowError($"Error al cargar tipos de artículos: {response.ReasonPhrase}");
+                    NotificationService.ShowError("Error al cargar tipos de artículos.", descripcion: response.ReasonPhrase ?? "Error desconocido.");
                 }
             }
             catch (Exception ex)
             {
-                NotificationService.ShowError($"Error cargando tipos de artículos: {ex.Message}");
+                NotificationService.ShowError("Error cargando tipos de artículos.", descripcion: ex.Message);
             }
         }
     }

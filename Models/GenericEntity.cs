@@ -15,6 +15,15 @@ namespace CCC_Rugby_Web.Models.Entityes
         DateTime? DeletedAt { get; set; }
         int? DeletedBy { get; set; }
         Usuario? DeletedByUsuario { get; set; }
+
+        void Delete(Usuario user)
+        {
+            BorradoLogico = true;
+            DeletedAt = DateTime.UtcNow;
+            DeletedBy = user.Id;
+            DeletedByUsuario = user;
+        }
+
     }
 
     // Interface extendida para entidades con created
@@ -31,6 +40,13 @@ namespace CCC_Rugby_Web.Models.Entityes
         DateTime? DeletedAt { get; set; }
         int? DeletedBy { get; set; }
         Usuario? DeletedByUsuario { get; set; }
+        void Delete(Usuario user)
+        {
+            BorradoLogico = true;
+            DeletedAt = DateTime.UtcNow;
+            DeletedBy = user.Id;
+            DeletedByUsuario = user;
+        }
     }
 
     // Marcadores para indicar si incluir propiedades de creación
@@ -72,6 +88,14 @@ namespace CCC_Rugby_Web.Models.Entityes
         [DefaultValue(false)]
         [Column("borrado_logico", Order = 999)]
         public bool BorradoLogico { get; set; } = false;
+
+        public void Delete(Usuario user)
+        {
+            BorradoLogico = true;
+            DeletedAt = DateTime.UtcNow;
+            DeletedBy = user.Id;
+            DeletedByUsuario = user;
+        }
     }
 
     // GenericEntity SIN propiedades de creación
@@ -92,6 +116,13 @@ namespace CCC_Rugby_Web.Models.Entityes
         [Column("created_by", Order = 994)]
         public int CreatedBy { get; set; }
         public required Usuario CreatedByUsuario { get; set; }
+        public void Delete(Usuario user)
+        {
+            BorradoLogico = true;
+            DeletedAt = DateTime.UtcNow;
+            DeletedBy = user.Id;
+            DeletedByUsuario = user;
+        }
     }
 
     // Alias para mantener compatibilidad (CON created)

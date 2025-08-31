@@ -7,7 +7,7 @@ namespace CCC_Rugby_Web.Models.Repositories
     [Repository(typeof(Articulo))]
     public class ArticuloRepository : GenericRepository<Articulo>
     {
-        public ArticuloRepository(CCC_DbContext context, EntityManager entityManager) : base(context, entityManager)
+        public ArticuloRepository(CCC_DbContext context, EntityManager entityManager, IUserContextService userContextService) : base(context, entityManager, userContextService)
         {
         }
 

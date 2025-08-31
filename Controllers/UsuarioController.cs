@@ -2,6 +2,7 @@
 using CCC_Rugby_Web.Models.Entityes;
 using CCC_Rugby_Web.Models.Repositories;
 using CCC_Rugby_Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -11,18 +12,15 @@ namespace CCC_Rugby_Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioController : ControllerBase
+    public class UsuarioController : GenericController
     {
-        private readonly EntityManager entityManager;
-        public UsuarioController(EntityManager entityManager)
-        {
-            this.entityManager = entityManager;
-        }
+        public UsuarioController(EntityManager entityManager) : base(entityManager) { }
 
         [HttpGet("GetAvatar/{userId}")]
+        [Authorize]
         public async Task<IActionResult> GetAvatar(int userId)
         {
-            var usuario = await entityManager.GetRepository<UsuarioRepository>().GetById(userId);
+            var usuario = await entityManager.GetRepository<UsuarioRepository>().GetByIdAsync(userId);
             if (usuario == null)
             {
                 return NotFound();
@@ -36,6 +34,7 @@ namespace CCC_Rugby_Web.Controllers
         }
 
         [HttpPost("UpdateAvatar/{userId}")]
+        [Authorize]
         public async Task<IActionResult> UpdateAvatar(int userId, [FromForm] IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -44,7 +43,7 @@ namespace CCC_Rugby_Web.Controllers
             }
 
             var usuarioRepo = entityManager.GetRepository<UsuarioRepository>();
-            var usuario = await usuarioRepo.GetById(userId);
+            var usuario = await usuarioRepo.GetByIdAsync(userId);
             if (usuario == null)
             {
                 return NotFound();
@@ -59,13 +58,8 @@ namespace CCC_Rugby_Web.Controllers
             if (usuario.AvatarArchivo != null)
             {
                 // Eliminar el archivo anterior si existe
-                usuario.AvatarArchivo.BorradoLogico = true;
-                usuario.AvatarArchivo.DeletedAt = DateTime.UtcNow;
-                usuario.AvatarArchivo.DeletedBy = userId;
-                usuario.AvatarArchivo.DeletedByUsuario = usuario;
-                await archivoRepository.UpdateAsync(usuario.AvatarArchivo, usuario);
+                await archivoRepository.DeleteAsync(usuario.AvatarArchivo);
             }
-
 
             Archivo newAvatar = new Archivo
             {
@@ -79,26 +73,15 @@ namespace CCC_Rugby_Web.Controllers
                 Extension = Path.GetExtension(file.FileName).TrimStart('.').ToLowerInvariant(),
                 CreatedByUsuario = usuario,
                 UpdatedByUsuario = usuario
-
             };
-            await archivoRepository.CreateAsync(newAvatar, usuario);
+            await archivoRepository.CreateAsync(newAvatar);
             usuario.AvatarArchivo = newAvatar;
             usuario.AvatarArchivoId = newAvatar.Id;
-            usuarioRepo.Update(usuario);
+            await usuarioRepo.UpdateAsync(usuario);
             await entityManager.SaveChangesAsync();
             return Ok("Avatar actualizado correctamente.");
         }
 
-        [HttpGet("GetMainMenu/{menuCodigo}/{id}")]
-        public async Task<IActionResult> GetMainMenu(string menuCodigo, int id)
-        {
-            MenuDTO menu = await entityManager.GetRepository<MenuRepository>().GetMenuDtoByCodigo(menuCodigo, id);
-            if (menu.MenuGrupos.Count <= 0)
-            {
-                return NotFound("No se encontraron los item del menu");
-            }
-            return Ok(menu);
-
-        }
+        
     }
 }
