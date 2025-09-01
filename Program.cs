@@ -52,52 +52,6 @@ builder.Services.AddScoped<IUtilities, Utilities>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddSingleton<ILoadingService, LoadingService>();
 
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        options.JsonSerializerOptions.MaxDepth = 64;
-        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-    });
-
-
-builder.Services.AddTransient<CookieForwardingHandler>();
-
-// Parte 2: Registrar el HttpClient con nombre ("API") y añadirle el handler
-builder.Services.AddHttpClient("API")
-    .AddHttpMessageHandler<CookieForwardingHandler>();
-
-// Parte 3: Registrar cómo se va a inyectar el HttpClient en tus componentes
-builder.Services.AddScoped(sp =>
-{
-    var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
-    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-
-    // Si no hay HttpContext, no podemos determinar la URL base dinámicamente.
-    if (httpContextAccessor.HttpContext == null)
-    {
-        if (builder.Environment.IsDevelopment())
-        {
-            // Creamos un cliente SIN el handler porque no hay cookie que reenviar.
-            return new HttpClient { BaseAddress = new Uri("https://localhost:5001/") };
-        }
-        // En producción, esto no debería ocurrir en el contexto de una petición de usuario.
-        throw new InvalidOperationException("No se puede construir HttpClient sin un HttpContext activo.");
-    }
-
-    // Usamos el factory para crear un cliente CON el CookieForwardingHandler ya conectado.
-    // El nombre "API" debe coincidir con el que usamos en AddHttpClient("API").
-    var client = httpClientFactory.CreateClient("API");
-
-    // Configuramos la dirección base dinámicamente para la petición actual.
-    var request = httpContextAccessor.HttpContext.Request;
-    client.BaseAddress = new Uri($"{request.Scheme}://{request.Host}/");
-
-    return client;
-});
-
-
 // Repository registration
 var repositoryTypes = Assembly.GetExecutingAssembly()
     .GetTypes()
@@ -158,8 +112,6 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-
-app.MapControllers();
 
 app.Run();
 

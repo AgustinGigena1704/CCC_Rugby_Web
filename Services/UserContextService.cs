@@ -30,7 +30,11 @@ namespace CCC_Rugby_Web.Services
                 var userId = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 if (userId != null && int.TryParse(userId, out int id))
                 {
-                    return await em.GetRepository<UsuarioRepository>().GetByIdAsync(id);
+                    return await em.GetRepository<UsuarioRepository>().GetByIdAsync(
+                        id, 
+                        u => u.Roles,
+                        user => user.AvatarArchivoId,
+                        u => u.AvatarArchivo);
                 }
             }
             return null;

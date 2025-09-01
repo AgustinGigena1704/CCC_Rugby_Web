@@ -2,7 +2,7 @@
 @layout MainLayout
 @attribute [Authorize]
 @inject LoadingService LoadingService
-@inject HttpClient HttpClient
+@inject EntityManager EntityManager
 @inject IUtilities Utilities
 @inject INotificationService NotificationService
 
@@ -117,36 +117,41 @@
     {
         using (LoadingService.LoadingScope())
         {
-            PaginacionDTO paginacionDTO = new PaginacionDTO
+            try
             {
-                GetTotalItems = (totalItems <= 0),
-                Page = state.Page,
-                RecordsPerPage = state.PageSize,
-
-            };
-            ValidacionDTO valid = Utilities.ValidarFechas(inicio, fin);
-            if (!valid.EsValido)
-            {
-                Console.WriteLine(valid.Mensaje);
-                return new TableData<PedidoDTO>() { TotalItems = 0, Items = new List<PedidoDTO>() };
-            }
-
-            var response = await HttpClient.PostAsJsonAsync("api/Pedido/GetListadoPedidos", new RequestDTO(paginacionDTO, inicio, fin), token);
-            if (response.IsSuccessStatusCode)
-            {
-                var pedidos = await response.Content.ReadFromJsonAsync<ListadoDTO<PedidoDTO>>();
-                if (pedidos == null)
+                PaginacionDTO paginacionDTO = new PaginacionDTO
                 {
-                    pedidos = new ListadoDTO<PedidoDTO>();
+                    GetTotalItems = (totalItems <= 0),
+                    Page = state.Page,
+                    RecordsPerPage = state.PageSize,
+
+                };
+                DateTime fecha_inicio = DateTime.Today;
+                DateTime fecha_fin = DateTime.Today;
+                if (inicio == null || fin == null)
+                {
+                    inicio = DateTime.Today;
+                    fin = DateTime.Today;
                 }
+                else
+                {
+                    fecha_inicio = (DateTime)inicio;
+                    fecha_fin = (DateTime)fin;
+                }
+
+                ListadoDTO<PedidoDTO> pedidos = await EntityManager.GetRepository<PedidoRepository>().GetListadoAsync(fecha_inicio, fecha_fin, paginacionDTO, token);
                 return new TableData<PedidoDTO>()
                 {
                     TotalItems = pedidos.TotalItems,
                     Items = pedidos.Listado
                 };
             }
-            return new TableData<PedidoDTO>() { TotalItems = 0, Items = new List<PedidoDTO>() };
-        }        
+            catch (Exception ex)
+            {
+                NotificationService.ShowError("Error cargando listado de pedidos.", descripcion: ex.Message);
+            }
+        }
+        return new TableData<PedidoDTO>() { TotalItems = 0, Items = new List<PedidoDTO>() };      
     }
 
     private async Task LoadTipoArticulos()
@@ -156,15 +161,9 @@
             try
             {
                 tipoSeleccionado = tipoDefault;
-                var response = await HttpClient.GetAsync("api/Articulo/GetTipoArticulos");
-                if (response.IsSuccessStatusCode)
-                {
-                    tipoArticulos = await response.Content.ReadFromJsonAsync<List<TipoArticuloDTO>>() ?? new List<TipoArticuloDTO>();
-                }
-                else
-                {
-                    NotificationService.ShowError("Error al cargar tipos de artículos.", descripcion: response.ReasonPhrase ?? "Error desconocido.");
-                }
+                tipoArticulos.Clear();
+                tipoArticulos.Add(tipoDefault);
+                tipoArticulos.AddRange(await EntityManager.GetRepository<ArticuloRepository>().GetTipoArticulos());
             }
             catch (Exception ex)
             {

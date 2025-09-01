@@ -116,18 +116,5 @@ namespace CCC_Rugby_Web.Models.Repositories
 
             return false;
         }
-
-        private bool IsValidBCryptHash(string hash)
-        {
-            if (string.IsNullOrEmpty(hash))
-                return false;
-
-            // BCrypt hash debe tener 60 caracteres y empezar con $2a$, $2b$, $2x$, o $2y$
-            return hash.Length == 60 &&
-                   (hash.StartsWith("$2a$") ||
-                    hash.StartsWith("$2b$") ||
-                    hash.StartsWith("$2x$") ||
-                    hash.StartsWith("$2y$"));
-        }
     }
 }

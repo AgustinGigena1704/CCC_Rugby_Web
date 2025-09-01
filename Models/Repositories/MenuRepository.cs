@@ -91,30 +91,5 @@ namespace CCC_Rugby_Web.Models.Repositories
 
             return r;
         }
-
-        public async Task<List<string>> GetByPathAsync(string path)
-        {
-            List<string> result = new List<string>();
-            try
-            {
-                var menus = await context.MenuItems
-                    .Include(mi => mi.MenuGrupo)
-                    .FirstOrDefaultAsync(mi => mi.Url == path && !mi.BorradoLogico);
-
-                if (menus != null)
-                {
-                    result.Add(menus.MenuGrupo.Nombre);
-                    result.Add(menus.Nombre);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                return result;
-            }
-
-            return result;
-
-        }
     }
 }
