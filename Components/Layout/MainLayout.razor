@@ -1,11 +1,12 @@
-﻿@inject INotificationService NotificationService
+﻿@using MudBlazor
+@inject INotificationService NotificationService
 @inject IDialogService DialogService
 @using System.Reflection
 @using System.Security.Claims
 @inherits LayoutComponentBase
 @inject NavigationManager navManager
 @inject AuthService authService
-@inject EntityManager EntityManager
+@inject HttpClient HttpClient
 @inject IUserContextService UserContextService
 @inject ISnackbar Snackbar
 @implements IDisposable
@@ -157,14 +158,14 @@
         {   
             if (ActualUser != null)
             {
-                MenuDTO response = await EntityManager.GetRepository<MenuRepository>().GetMenuDtoByCodigo("mainmenu", ActualUser);
-                if (response != null && response.MenuGrupos.Count > 0)
+                var responsex = await HttpClient.GetAsync("/api/Menu/GetMainMenu/mainmenu");
+                if (responsex.IsSuccessStatusCode)
                 {
-                    menu = response;
+                    menu = await responsex.Content.ReadFromJsonAsync<MenuDTO>() ?? new MenuDTO();
                 }
                 else
                 {
-                    throw new Exception("Error desconocido al obtener el menu.");
+                    throw new Exception(responsex.ReasonPhrase ?? "Error desconocido");  
                 }
             }
         }
@@ -187,23 +188,21 @@
             StateHasChanged();
             if (ActualUser != null)
             {
-                Archivo? avatarData = null;
-                if(ActualUser.AvatarArchivo == null)
-                {
-                    avatarData = await EntityManager.GetRepository<ArchivoRepository>().GetUserAvatar(ActualUser);
-                }
-                else
-                {
-                    avatarData = ActualUser.AvatarArchivo;
-                }
+                var response = await HttpClient.GetAsync($"api/Usuario/GetAvatar/{ActualUser.Id}");
 
-                if (avatarData != null)
+                if (response.IsSuccessStatusCode)
                 {
-                    var mimeType = GetMimeType(avatarData.Extension);
-                    avatarUrl = $"data:{mimeType};base64,{avatarData.Base64}";
-                    return;
+                    var avatarData = await response.Content.ReadFromJsonAsync<Archivo>();
+                    if (avatarData != null && avatarData.bytes != null)
+                    {
+                        var mimeType = GetMimeType(avatarData.Extension);
+                        avatarUrl = $"data:{mimeType};base64,{avatarData.Base64}";
+                    }
                 }
-                throw new Exception("No se encontró un avatar para el usuario.");
+                else if (response.StatusCode != System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new Exception(response.ReasonPhrase);
+                }
             }
         }
         catch (Exception ex)

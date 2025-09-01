@@ -1,7 +1,6 @@
 ﻿using CCC_Rugby_Web.Models.Entityes;
 using CCC_Rugby_Web.Services;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace CCC_Rugby_Web.Models.Repositories
 {
@@ -31,26 +30,6 @@ namespace CCC_Rugby_Web.Models.Repositories
             if (e == null) return null;
             if (e.BorradoLogico == true) return null;
             return e;
-        }
-
-        public async Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
-        {
-            if (includes == null || includes.Length == 0)
-            {
-                return await GetByIdAsync(id);
-            }
-
-            var query = _dbSet.AsQueryable();
-
-            foreach (var include in includes)
-            {
-                query = query.Include(include);
-            }
-
-            var entity = await query.FirstOrDefaultAsync(e => e.Id == id);
-            if (entity == null) return null;
-            if (entity.BorradoLogico == true) return null;
-            return entity;
         }
 
         public async Task CreateAsync(T entity)
