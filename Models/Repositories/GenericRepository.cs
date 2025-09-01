@@ -9,78 +9,69 @@ namespace CCC_Rugby_Web.Models.Repositories
         protected readonly CCC_DbContext context;
         protected readonly DbSet<T> _dbSet;
         protected readonly EntityManager entityManager;
-        protected readonly IUserContextService userContextService;
 
-        public GenericRepository(CCC_DbContext context, EntityManager entityManager, IUserContextService userContextService)
+        public GenericRepository(CCC_DbContext context, EntityManager entityManager)
         {
             this.context = context;
             _dbSet = context.Set<T>();
             this.entityManager = entityManager;
-            this.userContextService = userContextService;
         }
 
-        public async Task<Usuario?> GetActualUserAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await userContextService.GetActualUserAsync();
-        }
-
-        public async Task<T?> GetByIdAsync(int id)
-        {
-            var e = await _dbSet.FindAsync(id);
-            if (e == null) return null;
-            if (e.BorradoLogico == true) return null;
-            return e;
-        }
-
-        public async Task CreateAsync(T entity)
-        {
-            var user_by = await GetActualUserAsync();
-            if (user_by != null)
+            var query = _dbSet.AsQueryable();
+            query = IncludeNavigationProperties(query);
+            var entities = await query.ToListAsync();
+            var result = entities.Where(e =>
             {
-                var propby = typeof(T).GetProperty("CreatedBy");
-                var propbyUsuario = typeof(T).GetProperty("CreatedByUsuario");
-                var propAt = typeof(T).GetProperty("CreatedAt");
-                if (propby == null || propAt == null || propbyUsuario == null)
+                var prop = typeof(T).GetProperty("BorradoLogico");
+                if (prop != null && prop.PropertyType == typeof(bool))
                 {
-                    throw new Exception("La entidad no tiene las propiedades necesarias para asignar CreatedBy, CreatedAt o CreatedByUsuario");
+                    return e.BorradoLogico;
                 }
-                propby.SetValue(entity, user_by.Id);
-                propbyUsuario.SetValue(entity, user_by);
-                propAt.SetValue(entity, DateTime.UtcNow);
-                await _dbSet.AddAsync(entity);
+                return true;
+            });
+            return result;
+        }
+
+        public async Task<T> GetByIdAsync(int id)
+        {
+            var result = _dbSet.AsQueryable();
+            result = IncludeNavigationProperties(result);
+            var user = await result.FirstOrDefaultAsync(e => e.Id == id);
+
+            return user?.BorradoLogico == false ? user : null;
+        }
+
+        public async Task CreateAsync(T entity, Usuario user_by)
+        {
+            var propby = typeof(T).GetProperty("CreatedBy");
+            var propbyUsuario = typeof(T).GetProperty("CreatedByUsuario");
+            var propAt = typeof(T).GetProperty("CreatedAt");
+
+            await _dbSet.AddAsync(entity);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(T entity, Usuario user_by)
+        {
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.UpdatedBy = user_by.Id;
+            entity.UpdatedByUsuario = user_by;
+            _dbSet.Update(entity);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var entity = await GetByIdAsync(id);
+            if (entity != null)
+            {
+                entity.BorradoLogico = true;
+                entity.DeletedAt = DateTime.UtcNow;
+                _dbSet.Update(entity);
                 await context.SaveChangesAsync();
             }
-            else
-            {
-                throw new Exception("No se pudo obtener el usuario actual para asignar CreatedBy");
-            }
-        }
-
-        public async Task UpdateAsync(T entity)
-        {
-            var user_by = await GetActualUserAsync();
-            entity.UpdatedAt = DateTime.UtcNow;
-            if (user_by != null)
-            {
-                entity.UpdatedBy = user_by.Id;
-                entity.UpdatedByUsuario = user_by;
-            }
-            _dbSet.Update(entity);
-            await context.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(T entity)
-        {
-            var user_by = await GetActualUserAsync();
-            entity.BorradoLogico = true;
-            entity.DeletedAt = DateTime.UtcNow;
-            if (user_by != null)
-            {
-                entity.DeletedBy = user_by.Id;
-                entity.DeletedByUsuario = user_by;
-            }
-            _dbSet.Update(entity);
-            await context.SaveChangesAsync();
         }
 
         protected virtual IQueryable<T> IncludeNavigationProperties(IQueryable<T> query)

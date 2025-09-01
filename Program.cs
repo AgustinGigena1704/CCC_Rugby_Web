@@ -1,8 +1,10 @@
 using CCC_Rugby_Web.Components;
 using CCC_Rugby_Web.Models;
+using CCC_Rugby_Web.Models.Repositories;
 using CCC_Rugby_Web.Security;
 using CCC_Rugby_Web.Services;
 using CCC_Rugby_Web.Utilities;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
@@ -61,42 +63,11 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
-
-builder.Services.AddTransient<CookieForwardingHandler>();
-
-// Parte 2: Registrar el HttpClient con nombre ("API") y añadirle el handler
-builder.Services.AddHttpClient("API")
-    .AddHttpMessageHandler<CookieForwardingHandler>();
-
-// Parte 3: Registrar cómo se va a inyectar el HttpClient en tus componentes
 builder.Services.AddScoped(sp =>
 {
-    var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
-    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-
-    // Si no hay HttpContext, no podemos determinar la URL base dinámicamente.
-    if (httpContextAccessor.HttpContext == null)
-    {
-        if (builder.Environment.IsDevelopment())
-        {
-            // Creamos un cliente SIN el handler porque no hay cookie que reenviar.
-            return new HttpClient { BaseAddress = new Uri("https://localhost:5001/") };
-        }
-        // En producción, esto no debería ocurrir en el contexto de una petición de usuario.
-        throw new InvalidOperationException("No se puede construir HttpClient sin un HttpContext activo.");
-    }
-
-    // Usamos el factory para crear un cliente CON el CookieForwardingHandler ya conectado.
-    // El nombre "API" debe coincidir con el que usamos en AddHttpClient("API").
-    var client = httpClientFactory.CreateClient("API");
-
-    // Configuramos la dirección base dinámicamente para la petición actual.
-    var request = httpContextAccessor.HttpContext.Request;
-    client.BaseAddress = new Uri($"{request.Scheme}://{request.Host}/");
-
-    return client;
+    var navigationManager = sp.GetRequiredService<NavigationManager>();
+    return new HttpClient { BaseAddress = new Uri(navigationManager.BaseUri) };
 });
-
 
 // Repository registration
 var repositoryTypes = Assembly.GetExecutingAssembly()
@@ -110,9 +81,6 @@ foreach (var repoType in repositoryTypes)
 
 // HTTP Context Accessor para CookieService
 builder.Services.AddHttpContextAccessor();
-
-// UserContextService registration
-builder.Services.AddScoped<IUserContextService, UserContextService>();
 
 // Authentication services
 builder.Services.AddScoped<AuthStateComponent>();
@@ -193,7 +161,7 @@ static void ConfigureJwtKey(WebApplicationBuilder builder)
 
     if (string.IsNullOrEmpty(jwtKey))
     {
-        throw new InvalidOperationException("No se encontro una clave JWT valida. Configure JWT_KEY como variable de entorno o en appsettings.json");
+        throw new InvalidOperationException("No se encontr� una clave JWT v�lida. Configure JWT_KEY como variable de entorno o en appsettings.json");
     }
 
     builder.Configuration["JWT:Key"] = jwtKey;

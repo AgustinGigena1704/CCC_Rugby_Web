@@ -8,7 +8,7 @@
     <ErrorContent Context="exception">
         @{
             // Mostrar notificación de error
-            NotificationService.ShowError(GetUserFriendlyMessage(exception), descripcion: exception.Message);
+            NotificationService.ShowError(GetUserFriendlyMessage(exception));
         }
         <div class="error-boundary">
             <MudAlert Severity="Severity.Error" Variant="Variant.Filled">

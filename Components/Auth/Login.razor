@@ -4,8 +4,6 @@
 @inject AuthService authService
 @inject AuthStateProvider authStateProvider
 @inject NavigationManager navManager
-@inject ILoadingService LoadingService
-@inject INotificationService NotificationService
 
 <MudPaper Style="width: 90%; height: 90%; min-height:500px;" MaxWidth="500px" MaxHeight="90dvh">
     <MudContainer Style="height:100%; width:100%; display:flex; flex-direction:column;">
@@ -80,7 +78,7 @@
                 }
                 catch (Exception ex)
                 {
-                    NotificationService.ShowError("Error al iniciar sesión", descripcion: ex.Message);
+                    NotificationService.ShowError($"Error al iniciar sesión: {ex.Message}");
                     LoadingService.StopLoading();
                 }
             }

@@ -50,7 +50,7 @@
         }
         catch(Exception e)
         {
-            NotificationService.ShowError($"Error al subir avatar.", e.Message);
+            NotificationService.ShowError($"Error al subir avatar: {e.Message}");
         }
     }
 
@@ -89,7 +89,7 @@
         }
         catch (Exception ex)
         {
-            NotificationService.ShowError("Error cargando avatar.", descripcion: ex.Message);
+            NotificationService.ShowError($"Error cargando avatar: {ex.Message}");
         }
         finally
         {

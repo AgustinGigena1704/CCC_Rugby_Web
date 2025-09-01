@@ -11,7 +11,26 @@ namespace CCC_Rugby_Web.Models.Repositories
     [Repository(typeof(Usuario))]
     public class UsuarioRepository : GenericRepository<Usuario>
     {
-        public UsuarioRepository(CCC_DbContext context, EntityManager entity, IUserContextService userContextService) : base(context, entity, userContextService) { }
+        public UsuarioRepository(CCC_DbContext context, EntityManager entity) : base(context, entity) { }
+
+        public async Task<Usuario?> GetById(int id)
+        {
+            return await context.Usuarios
+                .Include(u => u.Persona)
+                .Include(u => u.AvatarArchivo)
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.Id == id && !u.BorradoLogico);
+        }
+
+        public void Update(Usuario user)
+        {
+            if (!IsValidBCryptHash(user.Password))
+            {
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password, BCrypt.Net.BCrypt.GenerateSalt(12));
+            }
+            context.Usuarios.Update(user);
+        }
+
         public async Task<Usuario?> GetByPassAndUser(string username, string password)
         {
             string patron = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
@@ -92,12 +111,13 @@ namespace CCC_Rugby_Web.Models.Repositories
         public async Task<Usuario> CreateUserAsync(Usuario user, string plainPassword)
         {
             user.Password = BCrypt.Net.BCrypt.HashPassword(plainPassword, BCrypt.Net.BCrypt.GenerateSalt(12));
-            await CreateAsync(user);
+            await context.Usuarios.AddAsync(user);
+            await context.SaveChangesAsync();
             return user;
         }
         public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
         {
-            var user = await GetByIdAsync(userId);
+            var user = await GetById(userId);
             if (user == null) return false;
 
             try
@@ -105,7 +125,8 @@ namespace CCC_Rugby_Web.Models.Repositories
                 if (BCrypt.Net.BCrypt.Verify(currentPassword, user.Password))
                 {
                     user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword, BCrypt.Net.BCrypt.GenerateSalt(12));
-                    await UpdateAsync(user);
+                    context.Usuarios.Update(user);
+                    await context.SaveChangesAsync();
                     return true;
                 }
             }

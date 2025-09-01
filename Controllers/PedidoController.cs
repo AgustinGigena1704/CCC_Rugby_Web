@@ -1,17 +1,19 @@
 ﻿using CCC_Rugby_Web.DTOs;
 using CCC_Rugby_Web.Models.Repositories;
 using CCC_Rugby_Web.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CCC_Rugby_Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
-    public class PedidoController : GenericController
+    public class PedidoController : ControllerBase
     {
-        public PedidoController(EntityManager entityManager) : base(entityManager) { }
+        private readonly EntityManager entityManager;
+        public PedidoController(EntityManager entityManager)
+        {
+            this.entityManager = entityManager;
+        }
 
         [HttpPost("GetListadoPedidos")]
         public async Task<IActionResult> GetListadoPedidos(

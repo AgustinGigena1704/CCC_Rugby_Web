@@ -1,14 +1,10 @@
-﻿@using MudBlazor
-@inject INotificationService NotificationService
-@inject IDialogService DialogService
-@using System.Reflection
+﻿@using System.Reflection
 @using System.Security.Claims
 @inherits LayoutComponentBase
 @inject NavigationManager navManager
 @inject AuthService authService
-@inject HttpClient HttpClient
-@inject IUserContextService UserContextService
-@inject ISnackbar Snackbar
+@inject AuthStateProvider auth
+@inject HttpClient httpClient
 @implements IDisposable
 
 <MudThemeProvider IsDarkMode="true" />
@@ -118,6 +114,7 @@
         <MudMainContent Class="d-flex flex-grow-1 overflow-auto">
             <MudContainer MaxWidth="MaxWidth.False" Class="pa-4 d-flex flex-column flex-grow-1">
                 <br />
+                <!-- ErrorBoundary envuelve automáticamente todo el contenido de las páginas -->
                 <ErrorBoundary>
                     @Body
                 </ErrorBoundary>
@@ -131,47 +128,50 @@
     private bool menuLoaded = false;
     private string avatarUrl = "";
     private bool isLoadingAvatar = true;
-    private Usuario? ActualUser;
+    private int? currentUserId;
     private MenuDTO menu = new MenuDTO();
 
     private string appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.1";
 
     protected override async Task OnInitializedAsync()
     {
-        // Inicializar el servicio de notificaciones con el Snackbar y el DialogService
+        // Inicializar el servicio de notificaciones con el Snackbar
         NotificationService.SetSnackbar(Snackbar);
-        NotificationService.SetDialogService(DialogService);
 
-        ActualUser = await UserContextService.GetActualUserAsync();
-        if(ActualUser != null)
+        var authState = await auth.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+        if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
         {
-            await LoadMenu();
-            await LoadUserAvatar();
+            currentUserId = userId;
         }
+
+        // Cargar menú y avatar con manejo de errores
+        await LoadMenu();
+        await LoadUserAvatar();
     }
 
     private async Task LoadMenu()
     {
         menuLoaded = false;
-        StateHasChanged();
         try
-        {   
-            if (ActualUser != null)
+        {
+            if (currentUserId > 0)
             {
-                var responsex = await HttpClient.GetAsync("/api/Menu/GetMainMenu/mainmenu");
-                if (responsex.IsSuccessStatusCode)
+                var response = await httpClient.GetAsync($"/api/Usuario/GetMainMenu/mainmenu/{currentUserId}");
+                if (response.IsSuccessStatusCode)
                 {
-                    menu = await responsex.Content.ReadFromJsonAsync<MenuDTO>() ?? new MenuDTO();
+                    menu = await response.Content.ReadFromJsonAsync<MenuDTO>() ?? new MenuDTO();
                 }
                 else
                 {
-                    throw new Exception(responsex.ReasonPhrase ?? "Error desconocido");  
+                    NotificationService.ShowError($"Error al cargar el menú: {response.ReasonPhrase}");
                 }
             }
         }
         catch (Exception ex)
         {
-            NotificationService.ShowError("Error cargando el menú de navegación.", descripcion: ex.Message);
+            NotificationService.ShowError($"Error cargando el menú de navegación: {ex.Message}");
         }
         finally
         {
@@ -186,9 +186,9 @@
         {
             isLoadingAvatar = true;
             StateHasChanged();
-            if (ActualUser != null)
+            if (currentUserId != null)
             {
-                var response = await HttpClient.GetAsync($"api/Usuario/GetAvatar/{ActualUser.Id}");
+                var response = await httpClient.GetAsync($"api/Usuario/GetAvatar/{currentUserId}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -201,13 +201,14 @@
                 }
                 else if (response.StatusCode != System.Net.HttpStatusCode.NotFound)
                 {
-                    throw new Exception(response.ReasonPhrase);
+                    // Solo mostrar error si no es un 404 (avatar no encontrado es normal)
+                    NotificationService.ShowWarning($"Error al cargar el avatar: {response.ReasonPhrase}");
                 }
             }
         }
         catch (Exception ex)
         {
-            NotificationService.ShowError("Error cargando el avatar del usuario", descripcion: ex.Message);
+            NotificationService.ShowError($"Error cargando el avatar del usuario: {ex.Message}");
         }
         finally
         {
@@ -243,11 +244,11 @@
         }
         catch (Exception ex)
         {
-            NotificationService.ShowError("Error al cerrar sesión.", descripcion: ex.Message);
+            NotificationService.ShowError($"Error al cerrar sesión: {ex.Message}");
         }
     }
 
-    // Método público para refrescar el avatar cuando se actualize
+    // Método público para refrescar el avatar cuando se actualice
     public async Task RefreshAvatar()
     {
         await LoadUserAvatar();

@@ -1,25 +1,20 @@
 using MudBlazor;
-using Microsoft.AspNetCore.Components;
-using CCC_Rugby_Web.Components.Utils;
-using System.Threading.Tasks;
 
 namespace CCC_Rugby_Web.Services
 {
     public interface INotificationService
     {
         void SetSnackbar(ISnackbar snackbar);
-        void SetDialogService(IDialogService dialogService);
-        void ShowSuccess(string message, int duration = 5000, string descripcion = null);
-        void ShowInfo(string message, int duration = 5000, string descripcion = null);
-        void ShowWarning(string message, int duration = 7000, string descripcion = null);
-        void ShowError(string message, string descripcion, int duration = 10000);
-        void ShowCustom(string message, Severity severity, int duration = 5000, bool requireInteraction = false, string descripcion = null);
+        void ShowSuccess(string message, int duration = 5000);
+        void ShowInfo(string message, int duration = 5000);
+        void ShowWarning(string message, int duration = 7000);
+        void ShowError(string message, int duration = 10000);
+        void ShowCustom(string message, Severity severity, int duration = 5000, bool requireInteraction = false);
     }
 
     public class NotificationService : INotificationService
     {
         private ISnackbar? _snackbar;
-        private IDialogService? _dialogService;
 
         public void SetSnackbar(ISnackbar snackbar)
         {
@@ -27,32 +22,27 @@ namespace CCC_Rugby_Web.Services
             _snackbar = snackbar;
         }
 
-        public void SetDialogService(IDialogService dialogService)
+        public void ShowSuccess(string message, int duration = 5000)
         {
-            _dialogService = dialogService;
+            ShowCustom(message, Severity.Success, duration);
         }
 
-        public void ShowSuccess(string message, int duration = 5000, string descripcion = null)
+        public void ShowInfo(string message, int duration = 5000)
         {
-            ShowCustom(message, Severity.Success, duration, false, descripcion);
+            ShowCustom(message, Severity.Info, duration);
         }
 
-        public void ShowInfo(string message, int duration = 5000, string descripcion = null)
+        public void ShowWarning(string message, int duration = 7000)
         {
-            ShowCustom(message, Severity.Info, duration, false, descripcion);
+            ShowCustom(message, Severity.Warning, duration);
         }
 
-        public void ShowWarning(string message, int duration = 7000, string descripcion = null)
+        public void ShowError(string message, int duration = 10000)
         {
-            ShowCustom(message, Severity.Warning, duration, false, descripcion);
+            ShowCustom(message, Severity.Error, duration, true);
         }
 
-        public void ShowError(string message, string descripcion, int duration = 10000)
-        {
-            ShowCustom(message, Severity.Error, duration, true, descripcion);
-        }
-
-        public void ShowCustom(string message, Severity severity, int duration = 5000, bool requireInteraction = false, string descripcion = null)
+        public void ShowCustom(string message, Severity severity, int duration = 5000, bool requireInteraction = false)
         {
             if (_snackbar == null)
             {
@@ -60,23 +50,13 @@ namespace CCC_Rugby_Web.Services
                 return;
             }
 
-            bool interaction = requireInteraction || !string.IsNullOrEmpty(descripcion);
-
             _snackbar.Add(message, severity, config =>
             {
-                config.RequireInteraction = interaction;
+                config.RequireInteraction = requireInteraction;
                 config.ShowCloseIcon = true;
                 config.VisibleStateDuration = duration;
                 config.ShowTransitionDuration = 300;
                 config.HideTransitionDuration = 300;
-                if (!string.IsNullOrEmpty(descripcion) && _dialogService != null)
-                {
-                    config.OnClick = async (snackbar) =>
-                    {
-                        var parameters = new DialogParameters { ["Titulo"] = message, ["Descripcion"] = descripcion };
-                        await _dialogService.ShowAsync<NotificationDialog>("Descripción", parameters);
-                    };
-                }
             });
         }
     }
